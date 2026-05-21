@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Gym Tiger - Premium 6-day strength and hypertrophy training split with interactive logging, dynamic rest timers, smart progressive overload tracking, and Firestore backend sync.">
+  <meta name="theme-color" content="#050507">
+  
+  <title>Gym Tiger | Interactive Fitness Split & Tracker</title>
+  
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="manifest" href="./app.webmanifest">
+  
+  <!-- Fallback icons -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐯</text></svg>">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- HEADER NAVBAR -->
+    <header class="navbar" role="banner">
+      <a href="#" class="nav-brand" aria-label="Gym Tiger Home">
+        <div class="brand-icon" aria-hidden="true">T</div>
+        <span>GYM <span class="gradient-text">TIGER</span></span>
+      </a>
+      
+      <div class="nav-actions">
+        <button class="nav-btn" id="btn-settings-trigger" aria-label="Open database sync settings">
+          ⚙️ DB Connect
+        </button>
+        <div id="nav-user-badge">
+          <!-- Populated by auth.js: user initials badge or 'Get Started' trigger button -->
+          <button class="nav-btn primary" id="btn-login-trigger">Get Started</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- DASHBOARD GLOWING HERO -->
+    <section class="hero-section" aria-label="Gym Tiger overview banner">
+      <div class="hero-content">
+        <h1>UNLEASH YOUR <br><span class="gradient-text">TIGER PROGRESSION</span></h1>
+        <p>
+          A premium six-day Cult-inspired program engineered for lat width, capped shoulder caps, heavy compound chest pressing, spinal hinge power, and progressive abdominal core hypertrophy.
+        </p>
+        
+        <div class="hero-stats">
+          <article class="stat-card">
+            <span>Workouts</span>
+            <strong id="total-workouts-stat">0</strong>
+            <em>Total logged</em>
+          </article>
+          <article class="stat-card">
+            <span>Volume</span>
+            <strong id="total-volume-stat">0</strong>
+            <em>Kilograms lifted</em>
+          </article>
+          <article class="stat-card">
+            <span>Progression</span>
+            <strong id="completion-rate-stat">0</strong>
+            <em>Active checkoff</em>
+          </article>
+        </div>
+      </div>
+      
+      <!-- Premium decorative brand mark -->
+      <div class="brand-badge-canvas" style="display: flex; justify-content: center; align-items: center; filter: drop-shadow(var(--tiger-glow-intense));" aria-hidden="true">
+        <span style="font-size: 140px;">🐯</span>
+      </div>
+    </section>
+
+    <!-- MAIN DASHBOARD CONTENT GRID -->
+    <main class="dashboard-grid" role="main">
+      
+      <!-- LEFT CONTAINER: WORKOUT SPLIT BOARD -->
+      <section class="split-board-container" aria-label="Training split selector">
+        <div class="dashboard-title-bar">
+          <h2>Training Board</h2>
+          <div id="focus-tags" class="focus-tags"></div>
+        </div>
+
+        <!-- 6-Day Selectable Horizontal Split Checklist -->
+        <div class="day-selector-grid" id="day-selector-grid" role="listbox" aria-label="Choose workout day">
+          <!-- Populated by app.js: renders Day A - Day F cards -->
+        </div>
+
+        <!-- Selected Day Details Panel view -->
+        <article class="day-details-container" id="day-details-panel" aria-label="Selected workout detailed movements">
+          <header class="details-header">
+            <div class="details-header-copy" id="details-header-copy">
+              <!-- Dynamically populated selected day metadata -->
+              <h3>Day A - Chest + Triceps + Abs</h3>
+              <p>Target Goal: Heavy pressing power, upper-chest focus, and progressive core flexion.</p>
+            </div>
+            
+            <div class="action-row">
+              <button class="session-btn" id="btn-start-workout" aria-label="Start workout session">
+                ▶ Start Session
+              </button>
+            </div>
+          </header>
+
+          <div class="exercises-list" id="exercises-list">
+            <!-- Dynamically populated exercises array lists -->
+          </div>
+        </article>
+      </section>
+
+      <!-- RIGHT CONTAINER: SIDEBAR WIDGETS -->
+      <aside class="sidebar-widgets" aria-label="Coaching priority indicators">
+        
+        <!-- Smart Progressive Overload Advisor Widget -->
+        <section class="widget-card" aria-label="Progressive Overload Advisor">
+          <h3>🏆 Overload Advisor</h3>
+          <div class="advisor-list" id="advisor-list">
+            <!-- Dynamically generated suggestions based on last logged workout sets/reps -->
+            <div style="text-align: center; color: var(--text-dim); padding: 12px; font-size: 12px;">Log in to enable personal overload advisor recommendations.</div>
+          </div>
+        </section>
+
+        <!-- Coaching Guidelines priorities -->
+        <section class="widget-card" aria-label="Split coaching priorities">
+          <h3>⚡ Split Priorities</h3>
+          <div class="coaching-rules-grid" id="coaching-rules-grid">
+            <!-- Populated by app.js from workout-data rules -->
+          </div>
+        </section>
+
+        <!-- Workout History sync list logs -->
+        <section class="widget-card" aria-label="Workout history logs">
+          <h3>📅 Training History</h3>
+          <div class="history-list" id="history-list">
+            <!-- Populated by history database arrays -->
+            <div style="text-align: center; color: var(--text-dim); padding: 24px;">Please log in to view workout history metrics.</div>
+          </div>
+        </section>
+
+      </aside>
+
+    </main>
+
+  </div>
+
+  <!-- ========================================== -->
+  <!-- OVERLAYS, MODALS AND FLOATING PANELS -->
+  <!-- ========================================== -->
+
+  <!-- 1. FULLSCREEN INTERACTIVE WORKOUT SESSION OVERLAY -->
+  <div class="workout-session-overlay" id="workout-session-overlay" role="dialog" aria-modal="true" aria-labelledby="session-day-title">
+    <div class="session-container">
+      
+      <!-- Overlay HUD Header -->
+      <header class="session-header">
+        <div class="session-title-block">
+          <h2 id="session-day-title">Day A Session</h2>
+          <p>Ticking off your sets logs them directly to your progression vault.</p>
+        </div>
+        
+        <div class="session-hud">
+          <div class="hud-item">
+            <span>Timer</span>
+            <strong id="session-timer">00:00</strong>
+          </div>
+          <div class="hud-item" style="border-color: var(--border-glass-bright);">
+            <span>Theme</span>
+            <strong style="color: var(--tiger-orange);">Gym Tiger</strong>
+          </div>
+          <button class="nav-session-btn cancel" id="btn-close-session" style="border-color: rgba(255, 107, 0, 0.25); color: var(--tiger-orange); background: rgba(255, 107, 0, 0.05); font-weight: 700; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0 16px; gap: 6px; border-radius: var(--border-radius-sm);" aria-label="Cancel active session and return to board">
+            ✕ Exit
+          </button>
+        </div>
+      </header>
+
+      <!-- Overlay Workspace Body Split -->
+      <div class="session-grid">
+        
+        <!-- Left: Current Active Exercise set logging table matrix -->
+        <section class="active-exercise-card" aria-label="Log exercise sets">
+          <header class="active-exercise-header">
+            <div class="active-exercise-title">
+              <h3 id="active-exercise-title">Barbell Bench Press</h3>
+              <p id="active-exercise-cue">Pack shoulders, lower bar to sternum, drive feet hard.</p>
+              <div class="exercise-actions" style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+                <div class="alternatives-dropdown" style="position:relative;">
+                  <button class="nav-session-btn" id="btn-alternatives" style="height:32px; font-size:12px; padding: 0 12px; background:var(--bg-panel); border-color:var(--border-glass-gray);" aria-haspopup="true" aria-expanded="false">
+                    <span style="color:var(--tiger-orange);">⟲</span> Alternatives
+                  </button>
+                  <div class="alternatives-menu" id="alternatives-menu" style="display:none; position:absolute; top:40px; left:0; background:var(--bg-glass-heavy); border:1px solid var(--border-glass-bright); border-radius:var(--border-radius-sm); padding:8px; z-index:10; min-width:200px; box-shadow:var(--shadow-main); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);">
+                    <ul id="alternatives-list" style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:4px;">
+                      <!-- Populated by JS -->
+                    </ul>
+                  </div>
+                </div>
+                
+                <a href="#" target="_blank" id="btn-search-form" class="nav-session-btn" style="height:32px; font-size:12px; padding: 0 12px; background:var(--bg-panel); border-color:var(--border-glass-gray); text-decoration:none; display:flex; align-items:center; gap:6px;">
+                  <span>🔍</span> Search Form
+                </a>
+              </div>
+            </div>
+            <span class="exercise-tag-badge">KEY LIFT</span>
+          </header>
+
+          <div class="sets-logger-table" id="sets-logger-table">
+            <!-- Populated by app.js with interactive set row input grids -->
+          </div>
+
+          <!-- Bottom Navigator -->
+          <footer class="session-navigator">
+            <button class="nav-session-btn" id="btn-prev-exercise" aria-label="Go to previous exercise">
+              ← Prev Lift
+            </button>
+            
+            <button class="nav-session-btn" id="btn-next-exercise" aria-label="Go to next exercise">
+              Next Lift →
+            </button>
+            
+            <button class="nav-session-btn finish" id="btn-finish-session" style="display: none;" aria-label="Finish and save workout session">
+              ✓ Finish Session
+            </button>
+          </footer>
+        </section>
+
+        <!-- Right: Rest Timer & Exercise demonstration GIF visualizers -->
+        <aside class="session-sidebar" aria-label="Session metrics utilities">
+          
+          <!-- SVG Circular Rest Timer component -->
+          <article class="timer-card" aria-label="Rest timer countdown">
+            <div class="circular-timer">
+              <svg class="timer-svg" viewBox="0 0 180 180">
+                <circle class="timer-bg-circle" cx="90" cy="90" r="80" />
+                <circle class="timer-progress-circle" id="timer-progress-circle" cx="90" cy="90" r="80" />
+              </svg>
+              <div class="timer-text-container">
+                <div class="timer-seconds" id="timer-seconds">01:30</div>
+                <div class="timer-label">REST TIMER</div>
+              </div>
+            </div>
+            
+            <div class="timer-controls">
+              <button class="timer-btn" id="btn-skip-timer" title="Skip rest timer" aria-label="Skip rest timer">⏭</button>
+              <button class="timer-btn" id="btn-pause-timer" title="Pause rest timer" aria-label="Pause rest timer">⏸</button>
+              <button class="timer-btn" id="btn-add-timer" title="Add 30 seconds to rest" aria-label="Add 30 seconds to rest">+30s</button>
+            </div>
+          </article>
+
+          <!-- Demonstration GIF card visualizer -->
+          <article class="gif-card" aria-label="Movement execution visualization">
+            <h4>💡 Form Demonstrator</h4>
+            <div class="gif-frame" id="active-exercise-gif-frame">
+              <!-- WorkoutX GIF dynamically served or fallback avatar -->
+            </div>
+          </article>
+
+        </aside>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. AUTHENTICATION DOCK OVERLAY DIALOG -->
+  <div class="auth-container" id="auth-container" role="dialog" aria-modal="true" aria-labelledby="auth-header-title">
+    <div class="auth-panel" id="auth-panel">
+      <header class="auth-header">
+        <h2 id="auth-header-title">Gym Tiger Login</h2>
+        <p id="auth-header-desc">Enter your email to resume your progression split</p>
+      </header>
+
+      <form class="auth-form" id="auth-form" aria-label="Authentication form">
+        <div class="input-field">
+          <label for="auth-email">Email Address</label>
+          <input type="email" id="auth-email" class="input-box" placeholder="tiger@fitground.com" required autocomplete="email">
+        </div>
+
+        <div class="input-field">
+          <label for="auth-password">Password</label>
+          <input type="password" id="auth-password" class="input-box" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" class="auth-submit-btn" id="auth-submit-btn">
+          Launch Dashboard
+        </button>
+      </form>
+
+      <div class="auth-switch">
+        Don't have an account? <span id="auth-switch-span">Register here</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. DATABASE SETTINGS WEB OVERLAY PANEL -->
+  <div class="settings-overlay" id="settings-overlay" aria-hidden="true"></div>
+  <div class="settings-panel" id="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <header class="settings-header">
+      <h3 id="settings-title">Firebase Database Config</h3>
+      <button class="settings-close" id="settings-close-btn" aria-label="Close settings dialog">×</button>
+    </header>
+    
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+        Paste your Firebase Web App Config JSON here to connect Gym Tiger to your custom Cloud Firestore backend database. 
+        This synchronizes your workouts instantly to both this web client and your mobile Flutter applications!
+      </p>
+      
+      <textarea class="firebase-config-textarea" id="firebase-config-textarea" aria-label="Paste Firebase Configuration JSON"></textarea>
+      
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px;">
+        <button class="nav-btn" id="btn-clear-config" style="color: hsl(0, 100%, 65%); border-color: rgba(255, 0, 0, 0.15);" aria-label="Clear configuration keys">
+          Clear Key
+        </button>
+        <button class="nav-btn primary" id="btn-save-config" aria-label="Save config and connect database">
+          Save & Connect
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Application Script Module -->
+  <script type="module" src="./app.js"></script>
+
+</body>
+</html>
