@@ -2,7 +2,7 @@
   "name": "Gym Tiger Training Program",
   "short_name": "Gym Tiger",
   "description": "Premium 6-day strength and hypertrophy training split with interactive logging and progressive overload advisor.",
-  "start_url": "./index.html",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#050507",
   "theme-color": "#050507",
