@@ -1,29 +1,33 @@
 // Gym Tiger 6-Day Hypertrophy & Strength Program Data
 
 const focusTags = [
-  { label: "Tiger Width (Lats)", tone: "cyan" },
-  { label: "Shoulder Caps", tone: "violet" },
-  { label: "Heavy Push Strength", tone: "orange" },
-  { label: "Core & Hinge Power", tone: "lime" }
+  { label: "Wider Back", tone: "lime" },
+  { label: "Bigger Shoulders", tone: "orange" },
+  { label: "Stronger Lower Back", tone: "cyan" },
+  { label: "Chest + Abs Strength", tone: "lime" },
 ];
 
 const coachingRules = [
   {
-    title: "V-Taper Overload",
-    copy: "Focus on strict lat pull-downs, pullovers, and lateral raises. Build impressive shoulder cap width and wide-lats posture."
+    title: "Width Priority",
+    copy:
+      "Pull-ups, wide-grip pulldowns, straight-arm pulldowns, pullovers, and cable laterals stay in the plan. These are your visual-width builders.",
   },
   {
-    title: "Hinge and Hips",
-    copy: "Clean deadlifts, RDLs, and good mornings. Drive with the glutes and hamstrings. Keep the spine neutral and brace."
+    title: "Lower Back Strength",
+    copy:
+      "Deadlifts, RDLs, back extensions, good mornings, bird dogs, and carries build the hinge pattern without turning every day into a max-out day.",
   },
   {
-    title: "Abs Hypertrophy",
-    copy: "Train abdominal muscles four times a week: progressive overload via weighted planks, cable crunches, and wheel rollouts."
+    title: "Abs Standard",
+    copy:
+      "Train abs four times per week: weighted flexion, hanging raises, anti-extension, and anti-rotation. Progress them like normal lifts.",
   },
   {
-    title: "The Overload Law",
-    copy: "When you hit the top of the rep range for all sets of a movement with strict form, add 2.5 kg for upper body or 5 kg for lower body next time."
-  }
+    title: "Progression",
+    copy:
+      "Keep 1-2 reps in reserve on compounds. When every set reaches the top of the rep range with clean form, add 2.5 kg upper body or 5 kg lower body.",
+  },
 ];
 
 const program = [
@@ -32,300 +36,300 @@ const program = [
     letter: "A",
     title: "Chest + Triceps + Abs",
     accent: "orange",
-    intent: "Heavy pressing power, upper-chest focus, and progressive core flexion.",
+    intent: "Heavy press strength, upper-chest volume, and weighted abs.",
     exercises: [
-      ex("Barbell Bench Press", "4", "5-8", "180s", "KEY", "Retract scapulae, pack shoulders, lower bar to sternum, drive feet hard.", [
+      ex("Barbell Bench Press", "4", "5-8", "2-3 min", "KEY", "Drive feet down, shoulder blades packed, bar to lower chest.", [
         "Dumbbell Bench Press",
         "Smith Machine Bench Press",
-        "Machine Chest Press"
+        "Machine Chest Press",
       ]),
-      ex("Incline Dumbbell Press", "3", "8-10", "90s", "KEY", "Set bench to 30 degrees, keep elbows slightly tucked, full range of motion.", [
+      ex("Incline Dumbbell Press", "3", "8-10", "90 sec", "KEY", "Use a 30 degree bench and keep elbows slightly tucked.", [
         "Incline Smith Press",
         "Incline Machine Press",
-        "Low-Incline Barbell Press"
+        "Low-Incline Barbell Press",
       ]),
-      ex("Cable Chest Fly", "3", "12-15", "60s", "CHEST", "Soft bend in elbows, stretch deep, hug a wide barrel, squeeze at center.", [
+      ex("Cable Chest Fly", "3", "12-15", "60 sec", "CHEST", "Let the chest stretch, then hug wide without bending elbows more.", [
         "Pec Deck Fly",
         "Incline Cable Fly",
-        "Dumbbell Fly"
+        "Dumbbell Fly",
       ]),
-      ex("Weighted Dips", "3", "8-12", "90s", "KEY", "Lean torso forward to isolate lower chest. Keep shoulders stable.", [
+      ex("Weighted Dips", "3", "8-12", "90 sec", "KEY", "Lean forward for chest. Use assistance if depth breaks.", [
         "Assisted Dip Machine",
         "Decline Dumbbell Press",
-        "Close-Grip Push-Up"
+        "Close-Grip Push-Up",
       ]),
-      ex("Overhead Cable Triceps Extension", "3", "10-12", "60s", "TRI", "Face away from cable tower, stretch elbows fully overhead, control the path.", [
+      ex("Overhead Cable Triceps Extension", "3", "10-12", "60 sec", "TRI", "Elbows point forward. Stretch the long head fully.", [
         "EZ-Bar Skull Crusher",
         "Dumbbell Overhead Extension",
-        "Rope Pushdown"
+        "Rope Pushdown",
       ]),
-      ex("Rope Triceps Pushdown", "3", "12-15", "60s", "TRI", "Separate rope at lockout, flare elbows out slightly, 1-second pause.", [
+      ex("Rope Triceps Pushdown", "3", "12-15", "60 sec", "TRI", "Split the rope at lockout and pause for one second.", [
         "Straight-Bar Pushdown",
         "Cable Kickback",
-        "Machine Dip"
+        "Machine Dip",
       ]),
-      ex("Hanging Leg Raise", "3", "10-15", "45s", "ABS", "Tilt pelvis backward at peak, avoid momentum, control eccentric drop.", [
+      ex("Hanging Leg Raise", "3", "10-15", "45 sec", "ABS", "Posteriorly tilt the pelvis. No swinging.", [
         "Captain's Chair Knee Raise",
         "Bench Reverse Crunch",
-        "Lying Leg Raise"
+        "Lying Leg Raise",
       ]),
-      ex("Cable Crunch", "3", "12-15", "45s", "ABS", "Kneel down, round the thoracic spine, pull elbows toward knees using abs.", [
+      ex("Cable Crunch", "3", "12-15", "45 sec", "ABS", "Round through the spine instead of pulling with arms.", [
         "Machine Crunch",
         "Decline Weighted Sit-Up",
-        "Stability Ball Crunch"
-      ])
-    ]
+        "Stability Ball Crunch",
+      ]),
+    ],
   },
   {
     day: "Day B",
     letter: "B",
-    title: "Back + Biceps (V-Taper)",
+    title: "Back + Biceps V-Taper",
     accent: "cyan",
-    intent: "Lat width priority, horizontal rows, erector spine builder.",
+    intent: "Lat width first, then rows, lower-back strength, and biceps.",
     exercises: [
-      ex("Deadlift", "3", "3-5", "180s", "KEY", "Tighten lats, pack shoulders, hinge deep, pull the slack, drive floors away.", [
+      ex("Deadlift", "3", "3-5", "3 min", "KEY", "Brace hard, push the floor away, stop before form degrades.", [
         "Trap Bar Deadlift",
         "Rack Pull",
-        "Romanian Deadlift"
+        "Romanian Deadlift",
       ]),
-      ex("Wide-Grip Lat Pulldown", "4", "8-12", "90s", "WIDTH", "Pull bar toward collarbones, elbows down and back, squeeze mid-back.", [
+      ex("Wide-Grip Lat Pulldown", "4", "8-12", "90 sec", "WIDTH", "Pull elbows down and out. Finish at upper chest.", [
         "Assisted Wide-Grip Pull-Up",
         "Neutral-Grip Pulldown",
-        "Machine High Row"
+        "Machine High Row",
       ]),
-      ex("Chest-Supported Row", "3", "8-12", "90s", "BACK", "Brace sternum on pad, pull elbows down toward hip pocket, retract shoulder blades.", [
+      ex("Chest-Supported Row", "3", "8-12", "90 sec", "BACK", "Keep chest fixed and row elbows toward hips.", [
         "Seated Cable Row",
         "T-Bar Row",
-        "One-Arm Dumbbell Row"
+        "One-Arm Dumbbell Row",
       ]),
-      ex("Straight-Arm Pulldown", "3", "12-15", "60s", "WIDTH", "Hands shoulder-width, sweep bar down to thighs, stretch lats at the top.", [
+      ex("Straight-Arm Pulldown", "3", "12-15", "60 sec", "WIDTH", "Think armpits to hips, arms almost straight.", [
         "Dumbbell Pullover",
         "Cable Pullover",
-        "Machine Pullover"
+        "Machine Pullover",
       ]),
-      ex("45-Degree Back Extension", "3", "12-15", "60s", "LOW BACK", "Hinge at the waist, keep neutral spine, squeeze glutes at peak lockout.", [
+      ex("45-Degree Back Extension", "3", "12-15", "60 sec", "LOW BACK", "Hinge at hips. Squeeze glutes at the top.", [
         "Reverse Hyperextension",
         "Good Morning",
-        "Bird Dog"
+        "Bird Dog",
       ]),
-      ex("EZ-Bar Curl", "3", "8-12", "60s", "BICEPS", "Keep elbows fixed against ribs, control descent, avoid torso sway.", [
+      ex("EZ-Bar Curl", "3", "8-12", "60 sec", "BICEPS", "Elbows stay near ribs. No hip swing.", [
         "Barbell Curl",
         "Cable Curl",
-        "Preacher Curl"
+        "Preacher Curl",
       ]),
-      ex("Incline Dumbbell Curl", "2", "10-12", "60s", "BICEPS", "Sit back on 45-degree bench, arm fully extended, supinate wrist at peak.", [
+      ex("Incline Dumbbell Curl", "2", "10-12", "60 sec", "BICEPS", "Start from a full stretch and keep shoulders back.", [
         "Bayesian Cable Curl",
         "Hammer Curl",
-        "Concentration Curl"
+        "Concentration Curl",
       ]),
-      ex("Pallof Press", "3", "12s hold/side", "45s", "ABS", "Anchor cable, press straight out, resist torso rotation, lock core.", [
+      ex("Pallof Press", "3", "10-12/side", "45 sec", "ABS", "Resist rotation. Ribs down, glutes tight.", [
         "Cable Woodchop",
         "Dead Bug",
-        "Side Plank"
-      ])
-    ]
+        "Side Plank",
+      ]),
+    ],
   },
   {
     day: "Day C",
     letter: "C",
     title: "Legs + Shoulder Width",
     accent: "violet",
-    intent: "Heavy knee flexion, posterior chain hinging, and capped side delts.",
+    intent: "Strong legs plus lateral and rear delts for capped shoulders.",
     exercises: [
-      ex("Front Squat", "4", "5-8", "150s", "KEY", "High clean rack position, deep thoracic extension, full depth squat, brace core.", [
+      ex("Front Squat", "4", "5-8", "2-3 min", "KEY", "Elbows high, full depth, brace before every rep.", [
         "Back Squat",
         "Hack Squat",
-        "Leg Press"
+        "Leg Press",
       ]),
-      ex("Romanian Deadlift", "3", "8-10", "120s", "LOW BACK", "Soft knee bend, push hips back till hamstring stretch, lock back, squeeze glutes.", [
+      ex("Romanian Deadlift", "3", "8-10", "2 min", "LOW BACK", "Push hips back and keep lats locked.", [
         "Dumbbell RDL",
         "Good Morning",
-        "Seated Leg Curl"
+        "Seated Leg Curl",
       ]),
-      ex("Leg Press", "3", "10-12", "90s", "LEGS", "Feet hip-width, lower till 90 degrees knee bend, do not lock out knees.", [
+      ex("Leg Press", "3", "10-12", "90 sec", "LEGS", "Controlled depth, no knee lockout.", [
         "Hack Squat",
         "Smith Machine Squat",
-        "Bulgarian Split Squat"
+        "Bulgarian Split Squat",
       ]),
-      ex("Seated Dumbbell Shoulder Press", "4", "6-10", "120s", "KEY", "Press weights in slight front-to-back arc, keep core braced, no neck strain.", [
+      ex("Seated Dumbbell Shoulder Press", "4", "6-10", "2 min", "KEY", "Press slightly back over ears. Do not overarch.", [
         "Machine Shoulder Press",
         "Barbell Overhead Press",
-        "Arnold Press"
+        "Arnold Press",
       ]),
-      ex("Cable Lateral Raise", "4", "12-20", "45s", "WIDTH", "Lean away slightly, pull elbow outward, lead with pinkies, keep constant tension.", [
+      ex("Cable Lateral Raise", "4", "12-20", "45 sec", "WIDTH", "Lead with elbows and keep tension behind the body.", [
         "Dumbbell Lateral Raise",
         "Machine Lateral Raise",
-        "Lean-Away Cable Raise"
+        "Lean-Away Cable Raise",
       ]),
-      ex("Face Pull", "3", "15-20", "45s", "REAR DELT", "Pull rope toward bridge of nose, flare elbows, squeeze rear delts and traps.", [
+      ex("Face Pull", "3", "15-20", "45 sec", "REAR DELT", "Pull to eyebrow level, rotate thumbs back.", [
         "Reverse Pec Deck",
         "Cable Rear Delt Fly",
-        "Band Pull-Apart"
+        "Band Pull-Apart",
       ]),
-      ex("Standing Calf Raise", "4", "12-20", "45s", "LEGS", "Pause at deep stretch, drive up to tip-toes, pause 1-sec at lockout.", [
+      ex("Standing Calf Raise", "4", "12-20", "45 sec", "LEGS", "Deep stretch, hard pause at the top.", [
         "Seated Calf Raise",
         "Leg Press Calf Raise",
-        "Single-Leg Calf Raise"
+        "Single-Leg Calf Raise",
       ]),
-      ex("Ab Wheel Rollout", "3", "6-12", "60s", "ABS", "Hinge from knees, posteriorly tilt hips, roll forward, roll back using abs.", [
+      ex("Ab Wheel Rollout", "3", "6-12", "60 sec", "ABS", "Ribs down. Only roll as far as your lower back stays neutral.", [
         "Stability Ball Rollout",
         "TRX Fallout",
-        "Body Saw Plank"
-      ])
-    ]
+        "Body Saw Plank",
+      ]),
+    ],
   },
   {
     day: "Day D",
     letter: "D",
     title: "Chest + Triceps V2",
     accent: "orange",
-    intent: "Volume pressing, progressive triceps, and heavy static core.",
+    intent: "Different chest angles, triceps overload, and anti-extension abs.",
     exercises: [
-      ex("Dumbbell Bench Press", "4", "8-10", "120s", "KEY", "Pack shoulders, descend slowly, press inward in a slight horizontal arc.", [
+      ex("Dumbbell Bench Press", "4", "8-10", "2 min", "KEY", "Deep stretch, wrists stacked, press in a slight arc.", [
         "Machine Chest Press",
         "Barbell Bench Press",
-        "Smith Bench Press"
+        "Smith Bench Press",
       ]),
-      ex("Incline Cable Fly", "3", "12-15", "60s", "CHEST", "Low-to-high sweep, squeeze upper pectorals, control the stretch.", [
+      ex("Incline Cable Fly", "3", "12-15", "60 sec", "CHEST", "Low-to-high line for upper chest.", [
         "Incline Dumbbell Fly",
         "Pec Deck",
-        "Low Cable Fly"
+        "Low Cable Fly",
       ]),
-      ex("Decline Bench Press", "3", "8-10", "90s", "CHEST", "Bar to lower sternum, maintain retracted shoulders, push upwards.", [
+      ex("Decline Bench Press", "3", "8-10", "90 sec", "CHEST", "Keep shoulder blades pinned and touch lower chest.", [
         "Weighted Dip",
         "Decline Machine Press",
-        "Flat Dumbbell Press"
+        "Flat Dumbbell Press",
       ]),
-      ex("Pec Deck Fly", "3", "12-15", "60s", "CHEST", "Chest out, pull handles together, 1s hard squeeze at peak, 3s negative.", [
+      ex("Pec Deck Fly", "3", "12-15", "60 sec", "CHEST", "Pause at the squeeze, slow return.", [
         "Cable Crossover",
         "Dumbbell Fly",
-        "Push-Up"
+        "Push-Up",
       ]),
-      ex("Close-Grip Bench Press", "3", "6-10", "120s", "KEY", "Hands shoulder-width apart, elbows brush ribcage, push with triceps.", [
+      ex("Close-Grip Bench Press", "3", "6-10", "2 min", "KEY", "Hands just inside shoulder width, elbows tucked.", [
         "Smith Close-Grip Press",
         "Machine Dip",
-        "Weighted Push-Up"
+        "Weighted Push-Up",
       ]),
-      ex("EZ-Bar Skull Crusher", "3", "10-12", "60s", "TRI", "Lower bar slightly behind head to keep triceps under load, lock elbows.", [
+      ex("EZ-Bar Skull Crusher", "3", "10-12", "60 sec", "TRI", "Upper arms angled back slightly to keep tension.", [
         "Cable Skull Crusher",
         "Overhead Dumbbell Extension",
-        "Rope Pushdown"
+        "Rope Pushdown",
       ]),
-      ex("Weighted Plank", "3", "40-60s", "45s", "ABS", "Place weight plate on lower back, vacuum abs, squeeze glutes and thighs.", [
+      ex("Weighted Plank", "3", "40-60 sec", "45 sec", "ABS", "Brace like a heavy squat. No hip sag.", [
         "RKC Plank",
         "Body Saw",
-        "Dead Bug"
+        "Dead Bug",
       ]),
-      ex("Decline Sit-Up", "3", "12-15", "45s", "ABS", "Strict vertebral flexion, curl torso upwards, avoid pulling with hip flexors.", [
+      ex("Decline Sit-Up", "3", "12-15", "45 sec", "ABS", "Add a plate only after strict control.", [
         "Cable Crunch",
         "Machine Crunch",
-        "Weighted Crunch"
-      ])
-    ]
+        "Weighted Crunch",
+      ]),
+    ],
   },
   {
     day: "Day E",
     letter: "E",
     title: "Back + Biceps V2",
     accent: "cyan",
-    intent: "Vertical pulls for maximum width, heavy T-Bar rows, stretch biceps.",
+    intent: "Second lat-width day with heavy rows and controlled lower-back work.",
     exercises: [
-      ex("Pull-Up", "4", "6-10", "120s", "WIDTH", "Hang fully, pack scapulae, pull chin over bar, keep chest up, control drop.", [
+      ex("Pull-Up", "4", "6-10", "2 min", "WIDTH", "Use assistance until reps are clean. Add weight later.", [
         "Assisted Pull-Up",
         "Wide-Grip Pulldown",
-        "Neutral-Grip Pulldown"
+        "Neutral-Grip Pulldown",
       ]),
-      ex("T-Bar Row", "4", "6-10", "120s", "KEY", "Hinge 45 degrees, chest up, row handle to belt line, squeeze shoulder blades.", [
+      ex("T-Bar Row", "4", "6-10", "2 min", "KEY", "Brace, pull to lower ribs, do not turn it into a shrug.", [
         "Chest-Supported Row",
         "Barbell Row",
-        "Machine Row"
+        "Machine Row",
       ]),
-      ex("Single-Arm Cable Row", "3", "10-12", "75s", "BACK", "Step back, pull single handle to hip, twist slightly for lat contraction.", [
+      ex("Single-Arm Cable Row", "3", "10-12/side", "75 sec", "BACK", "Reach forward for stretch, elbow drives to hip.", [
         "One-Arm Dumbbell Row",
         "Iso-Lateral Row Machine",
-        "Seated Cable Row"
+        "Seated Cable Row",
       ]),
-      ex("Dumbbell Pullover", "3", "10-12", "75s", "WIDTH", "Lie across bench, lower dumbbell behind head with lats, keep core stable.", [
+      ex("Dumbbell Pullover", "3", "10-12", "75 sec", "WIDTH", "Open lats through a long stretch. Keep ribs controlled.", [
         "Straight-Arm Pulldown",
         "Machine Pullover",
-        "Cable Pullover"
+        "Cable Pullover",
       ]),
-      ex("Good Morning", "3", "8-10", "90s", "LOW BACK", "Bar on upper traps, hinge at hips, minimal knee bend, keep neutral spine.", [
+      ex("Good Morning", "3", "8-10", "90 sec", "LOW BACK", "Light to moderate load. Hinge, do not squat.", [
         "Back Extension",
         "Romanian Deadlift",
-        "Hip Thrust"
+        "Hip Thrust",
       ]),
-      ex("Preacher Curl", "3", "10-12", "60s", "BICEPS", "Rest arms flat on pad, fully extend at bottom, curl EZ-bar to nose level.", [
+      ex("Preacher Curl", "3", "10-12", "60 sec", "BICEPS", "Full extension, no shoulder movement.", [
         "Cable Preacher Curl",
         "EZ-Bar Curl",
-        "Machine Curl"
+        "Machine Curl",
       ]),
-      ex("Hammer Curl", "3", "10-12", "60s", "BICEPS", "Neutral grip dumbbells, squeeze brachialis/forearms at peak.", [
+      ex("Hammer Curl", "3", "10-12", "60 sec", "BICEPS", "Neutral grip for brachialis and forearm thickness.", [
         "Rope Hammer Curl",
         "Cross-Body Hammer Curl",
-        "Reverse Curl"
+        "Reverse Curl",
       ]),
-      ex("Cable Woodchop", "3", "10-12", "45s", "ABS", "High-to-low diagonal pull, pivot trailing foot, rotate torso with obliques.", [
+      ex("Cable Woodchop", "3", "10-12/side", "45 sec", "ABS", "Rotate through trunk while hips stay controlled.", [
         "Pallof Press",
         "Russian Twist",
-        "Side Plank Rotation"
-      ])
-    ]
+        "Side Plank Rotation",
+      ]),
+    ],
   },
   {
     day: "Day F",
     letter: "F",
     title: "Shoulders + Legs + Core",
     accent: "violet",
-    intent: "Military press mass, capped lateral delts, heavy knee flexion, core brace.",
+    intent: "Shoulder mass, traps, legs, and a final core/lower-back finish.",
     exercises: [
-      ex("Seated Barbell Military Press", "4", "5-8", "150s", "KEY", "Unrack at collarbones, press straight overhead, pull face back to clear bar.", [
+      ex("Seated Barbell Military Press", "4", "5-8", "2-3 min", "KEY", "Press from upper chest to overhead with ribs stacked.", [
         "Dumbbell Shoulder Press",
         "Machine Shoulder Press",
-        "Standing Overhead Press"
+        "Standing Overhead Press",
       ]),
-      ex("Arnold Press", "3", "8-10", "90s", "SHOULDER", "Rotate palms in at bottom, rotate palms out at top lockout, smooth tempo.", [
+      ex("Arnold Press", "3", "8-10", "90 sec", "SHOULDER", "Rotate smoothly and avoid rushing the bottom.", [
         "Dumbbell Shoulder Press",
         "Machine Press",
-        "Landmine Press"
+        "Landmine Press",
       ]),
-      ex("Machine Lateral Raise", "4", "12-20", "45s", "WIDTH", "Sit straight, lead with elbows, slow control on eccentrics.", [
+      ex("Machine Lateral Raise", "4", "12-20", "45 sec", "WIDTH", "High reps, strict control, no trap takeover.", [
         "Cable Lateral Raise",
         "Dumbbell Lateral Raise",
-        "Lean-Away Lateral Raise"
+        "Lean-Away Lateral Raise",
       ]),
-      ex("Reverse Pec Deck", "3", "15-20", "45s", "REAR DELT", "Fly hands back wide, squeeze rear delts, keep chest firm against pad.", [
+      ex("Reverse Pec Deck", "3", "15-20", "45 sec", "REAR DELT", "Hands wide, chest fixed, squeeze rear delts.", [
         "Face Pull",
         "Cable Rear Delt Fly",
-        "Incline Rear Delt Raise"
+        "Incline Rear Delt Raise",
       ]),
-      ex("Heavy Barbell Shrug", "3", "8-12", "90s", "TRAPS", "Stand tall, shrug shoulders directly to ears, hold 1s at peak.", [
+      ex("Heavy Barbell Shrug", "3", "8-12", "90 sec", "TRAPS", "Straight up and down. Pause at top.", [
         "Dumbbell Shrug",
         "Smith Machine Shrug",
-        "Trap Bar Shrug"
+        "Trap Bar Shrug",
       ]),
-      ex("Back Squat", "4", "6-10", "150s", "KEY", "Bar on upper traps, deep breath, brace core, break at hips, squat below parallel.", [
+      ex("Back Squat", "4", "6-10", "2-3 min", "KEY", "Brace, full depth, controlled eccentric.", [
         "Hack Squat",
         "Leg Press",
-        "Smith Machine Squat"
+        "Smith Machine Squat",
       ]),
-      ex("Lying Leg Curl", "3", "10-15", "60s", "LEGS", "Hips flat on pad, pull heels to glutes, control return to full extension.", [
+      ex("Lying Leg Curl", "3", "10-15", "60 sec", "LEGS", "Hips pressed down and hamstrings squeezed.", [
         "Seated Leg Curl",
         "Romanian Deadlift",
-        "Nordic Curl"
+        "Nordic Curl",
       ]),
-      ex("Farmer's Carry", "4", "40m", "75s", "CORE", "Hold heavy handles, stand tall, walk in a straight line with braced core.", [
+      ex("Farmer's Carry", "4", "30-40 m", "75 sec", "CORE", "Tall posture, hard brace, heavy handles.", [
         "Suitcase Carry",
         "Trap Bar Carry",
-        "Dumbbell Hold"
+        "Dumbbell Hold",
       ]),
-      ex("Bird Dog", "2", "10/side", "30s", "LOW BACK", "All fours, extend opposite arm and leg, hold 2s, keep hips perfectly level.", [
+      ex("Bird Dog", "2", "10/side", "30 sec", "LOW BACK", "Slow reach, no hip rotation, neutral spine.", [
         "Dead Bug",
         "McGill Curl-Up",
-        "Side Plank"
-      ])
-    ]
-  }
+        "Side Plank",
+      ]),
+    ],
+  },
 ];
 
 function ex(name, sets, reps, rest, tag, cue, alternatives) {

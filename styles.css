@@ -341,6 +341,81 @@ h1, h2, h3, h4, h5 {
   font-size: 28px;
 }
 
+/* Focus Tags Dashboard Display */
+.focus-tags {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.focus-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-glass-gray);
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main);
+  transition: var(--transition-fast);
+}
+
+.focus-tag span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Tone Color Variations matching our focus data */
+.focus-tag.lime {
+  border-color: rgba(133, 242, 0, 0.15);
+  background: rgba(133, 242, 0, 0.04);
+  color: #c4ff6b;
+}
+.focus-tag.lime span {
+  background: var(--color-lime);
+  box-shadow: 0 0 8px var(--color-lime);
+}
+
+.focus-tag.orange {
+  border-color: rgba(255, 107, 0, 0.15);
+  background: rgba(255, 107, 0, 0.04);
+  color: #ffa259;
+}
+.focus-tag.orange span {
+  background: var(--color-orange);
+  box-shadow: 0 0 8px var(--color-orange);
+}
+
+.focus-tag.cyan {
+  border-color: rgba(0, 242, 254, 0.15);
+  background: rgba(0, 242, 254, 0.04);
+  color: #80f7ff;
+}
+.focus-tag.cyan span {
+  background: var(--color-cyan);
+  box-shadow: 0 0 8px var(--color-cyan);
+}
+
+.focus-tag.violet {
+  border-color: rgba(186, 104, 200, 0.15);
+  background: rgba(186, 104, 200, 0.04);
+  color: #e1bee7;
+}
+.focus-tag.violet span {
+  background: var(--color-violet);
+  box-shadow: 0 0 8px var(--color-violet);
+}
+
+.focus-tag:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.04);
+}
+
 /* Day Selector Horizontal Split */
 .day-selector-grid {
   display: grid;
