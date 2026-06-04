@@ -933,6 +933,17 @@ async function finishWorkoutSession() {
 // HISTORY LOG VIEW
 // ==========================================
 
+function setRingProgress(elementId, pct) {
+  const circle = document.getElementById(elementId);
+  if (circle) {
+    const radius = 33;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (Math.min(pct, 100) / 100) * circumference;
+    circle.style.strokeDasharray = `${circumference}`;
+    circle.style.strokeDashoffset = offset;
+  }
+}
+
 async function refreshHistoryDashboard() {
   if (!currentUser) return;
   
@@ -942,17 +953,19 @@ async function refreshHistoryDashboard() {
     
     // Render Stats Badges
     if (elements.totalWorkoutsStat) elements.totalWorkoutsStat.textContent = list.length;
+    setRingProgress("workouts-ring-progress", (list.length / 30) * 100);
     
     let vol = 0;
     list.forEach(entry => vol += (entry.totalVolumeKg || 0));
     if (elements.totalVolumeStat) {
       elements.totalVolumeStat.textContent = vol >= 1000 ? `${(vol/1000).toFixed(1)}k` : vol;
     }
+    setRingProgress("volume-ring-progress", (vol / 50000) * 100);
     
     if (elements.completionRateStat) {
-      // Percentage of days split completed
       const completions = list.length;
-      elements.completionRateStat.textContent = `${completions} Split${completions !== 1 ? 's' : ''}`;
+      elements.completionRateStat.textContent = completions;
+      setRingProgress("progression-ring-progress", (completions / 12) * 100);
     }
     
     // Render history feed list
@@ -995,6 +1008,10 @@ function resetStatsDashboard() {
   if (elements.totalWorkoutsStat) elements.totalWorkoutsStat.textContent = "0";
   if (elements.totalVolumeStat) elements.totalVolumeStat.textContent = "0";
   if (elements.completionRateStat) elements.completionRateStat.textContent = "0";
+  setRingProgress("workouts-ring-progress", 0);
+  setRingProgress("volume-ring-progress", 0);
+  setRingProgress("progression-ring-progress", 0);
+  
   if (elements.historyList) {
     elements.historyList.innerHTML = `
       <div style="text-align: center; color: var(--text-dim); padding: 24px;">Please log in to view workout history metrics.</div>

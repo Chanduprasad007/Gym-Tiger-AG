@@ -16,6 +16,14 @@
 </head>
 <body>
 
+  <!-- Fluid organic "aurora" background blobs -->
+  <div class="liquid-bg-blobs" aria-hidden="true">
+    <div class="liquid-bg-blob blob-orange"></div>
+    <div class="liquid-bg-blob blob-lime"></div>
+    <div class="liquid-bg-blob blob-pink"></div>
+    <div class="liquid-bg-blob blob-cyan"></div>
+  </div>
+
   <div class="app-container">
     
     <!-- HEADER NAVBAR -->
@@ -40,25 +48,82 @@
     <section class="hero-section" aria-label="Gym Tiger overview banner">
       <div class="hero-content">
         <h1>UNLEASH YOUR <br><span class="gradient-text">TIGER PROGRESSION</span></h1>
-        <p>
-          A premium six-day Cult-inspired program engineered for lat width, capped shoulder caps, heavy compound chest pressing, spinal hinge power, and progressive abdominal core hypertrophy.
-        </p>
         
+        <!-- Fluid Activity Wave Chart -->
+        <div class="activity-chart-card">
+          <div class="chart-header">
+            <span class="chart-title">ACTIVITY WAVE</span>
+            <span class="chart-subtitle">Weekly Energy Flow</span>
+          </div>
+          <div class="chart-body">
+            <svg class="activity-wave-svg" viewBox="0 0 300 60">
+              <defs>
+                <linearGradient id="wave-gradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--color-cyan)" stop-opacity="0.3"></stop>
+                  <stop offset="100%" stop-color="var(--color-cyan)" stop-opacity="0"></stop>
+                </linearGradient>
+                <linearGradient id="wave-line-gradient" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="var(--color-pink)"></stop>
+                  <stop offset="50%" stop-color="var(--color-orange)"></stop>
+                  <stop offset="100%" stop-color="var(--color-lime)"></stop>
+                </linearGradient>
+              </defs>
+              <path class="wave-area" d="M 0 60 Q 25 30 50 40 T 100 20 T 150 50 T 200 25 T 250 35 T 300 10 L 300 60 Z" fill="url(#wave-gradient)" />
+              <path class="wave-line" d="M 0 60 Q 25 30 50 40 T 100 20 T 150 50 T 200 25 T 250 35 T 300 10" fill="none" stroke="url(#wave-line-gradient)" stroke-width="3.5" stroke-linecap="round" />
+              <circle cx="100" cy="20" r="4.5" fill="var(--color-orange)" class="chart-pulse-dot" />
+              <circle cx="200" cy="25" r="4.5" fill="var(--color-pink)" class="chart-pulse-dot" />
+              <circle cx="300" cy="10" r="4.5" fill="var(--color-lime)" class="chart-pulse-dot" />
+            </svg>
+          </div>
+        </div>
+
         <div class="hero-stats">
-          <article class="stat-card">
-            <span>Workouts</span>
-            <strong id="total-workouts-stat">0</strong>
-            <em>Total logged</em>
+          <article class="stat-card" id="card-workouts">
+            <div class="stat-ring-container">
+              <svg class="stat-ring" viewBox="0 0 80 80">
+                <circle class="ring-bg" cx="40" cy="40" r="33" />
+                <circle class="ring-progress" id="workouts-ring-progress" cx="40" cy="40" r="33" stroke-dasharray="207.3" stroke-dashoffset="207.3" />
+              </svg>
+              <div class="stat-ring-value">
+                <strong id="total-workouts-stat">0</strong>
+              </div>
+            </div>
+            <div class="stat-info">
+              <span>Workouts</span>
+              <em>Total logged</em>
+            </div>
           </article>
-          <article class="stat-card">
-            <span>Volume</span>
-            <strong id="total-volume-stat">0</strong>
-            <em>Kilograms lifted</em>
+          
+          <article class="stat-card" id="card-volume">
+            <div class="stat-ring-container">
+              <svg class="stat-ring" viewBox="0 0 80 80">
+                <circle class="ring-bg" cx="40" cy="40" r="33" />
+                <circle class="ring-progress" id="volume-ring-progress" cx="40" cy="40" r="33" stroke-dasharray="207.3" stroke-dashoffset="207.3" />
+              </svg>
+              <div class="stat-ring-value">
+                <strong id="total-volume-stat">0</strong>
+              </div>
+            </div>
+            <div class="stat-info">
+              <span>Volume</span>
+              <em>Total kilograms</em>
+            </div>
           </article>
-          <article class="stat-card">
-            <span>Progression</span>
-            <strong id="completion-rate-stat">0</strong>
-            <em>Active checkoff</em>
+          
+          <article class="stat-card" id="card-progression">
+            <div class="stat-ring-container">
+              <svg class="stat-ring" viewBox="0 0 80 80">
+                <circle class="ring-bg" cx="40" cy="40" r="33" />
+                <circle class="ring-progress" id="progression-ring-progress" cx="40" cy="40" r="33" stroke-dasharray="207.3" stroke-dashoffset="207.3" />
+              </svg>
+              <div class="stat-ring-value">
+                <strong id="completion-rate-stat">0</strong>
+              </div>
+            </div>
+            <div class="stat-info">
+              <span>Progression</span>
+              <em>Splits logged</em>
+            </div>
           </article>
         </div>
       </div>
@@ -227,6 +292,12 @@
           <article class="timer-card" aria-label="Rest timer countdown">
             <div class="circular-timer">
               <svg class="timer-svg" viewBox="0 0 180 180">
+                <defs>
+                  <linearGradient id="timer-gradient-fill" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="var(--color-orange)" />
+                    <stop offset="100%" stop-color="var(--color-pink)" />
+                  </linearGradient>
+                </defs>
                 <circle class="timer-bg-circle" cx="90" cy="90" r="80" />
                 <circle class="timer-progress-circle" id="timer-progress-circle" cx="90" cy="90" r="80" />
               </svg>
