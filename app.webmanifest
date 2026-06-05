@@ -1,6 +1,6 @@
 {
-  "name": "Gym Tiger Training Program",
-  "short_name": "Gym Tiger",
+  "name": "FitBulse Training Program",
+  "short_name": "FitBulse",
   "description": "Premium 6-day strength and hypertrophy training split with interactive logging and progressive overload advisor.",
   "start_url": "./",
   "display": "standalone",
@@ -9,7 +9,7 @@
   "orientation": "any",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23FF6B00%22 rx=%2220%22/><text y=%22.75em%22 x=%220.1em%22 font-size=%2275%22>🐯</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%2300E5E5%22 rx=%2220%22/><text y=%22.75em%22 x=%220.1em%22 font-size=%2275%22>💪</text></svg>",
       "sizes": "192x192 512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"

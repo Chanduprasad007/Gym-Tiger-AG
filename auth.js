@@ -1,4 +1,4 @@
-// Gym Tiger Authentication Controller Module
+// FitBulse Authentication Controller Module
 import { auth, db, isMockMode } from "./firebase-config.js";
 
 // DOM Elements cache for Auth overlay
@@ -64,10 +64,10 @@ function toggleAuthMode() {
   if (isSignUpMode) {
     authHeaderTitle.textContent = "Create Account";
     authHeaderDesc.textContent = "Sign up to track and sync workouts to Cloud Firestore";
-    authSubmitBtn.textContent = "Start Training As Tiger";
+    authSubmitBtn.textContent = "Start Training As FitBulse";
     authSwitchSpan.textContent = "Sign In instead";
   } else {
-    authHeaderTitle.textContent = "Gym Tiger Sign In";
+    authHeaderTitle.textContent = "FitBulse Sign In";
     authHeaderDesc.textContent = "Enter your email to resume your progression split";
     authSubmitBtn.textContent = "Launch Dashboard";
     authSwitchSpan.textContent = "Register here";
@@ -98,7 +98,7 @@ async function handleAuthSubmit(e) {
       showToast("Account created successfully!");
     } else {
       await auth.signInWithEmailAndPassword(email, password);
-      showToast("Welcome back, Tiger!");
+      showToast("Welcome back!");
     }
     hideAuthPanel();
   } catch (error) {
@@ -126,7 +126,7 @@ function handleAuthError(error) {
 function setLoadingState(isLoading) {
   if (authSubmitBtn) {
     authSubmitBtn.disabled = isLoading;
-    authSubmitBtn.textContent = isLoading ? "Authenticating..." : (isSignUpMode ? "Start Training As Tiger" : "Launch Dashboard");
+    authSubmitBtn.textContent = isLoading ? "Authenticating..." : (isSignUpMode ? "Start Training As FitBulse" : "Launch Dashboard");
   }
 }
 
@@ -144,7 +144,7 @@ export async function handleSignOut() {
 function updateAuthUI(user) {
   if (userBadgeContainer) {
     if (user) {
-      const email = user.email || "Tiger";
+      const email = user.email || "User";
       const initial = email.charAt(0).toUpperCase();
       const cleanName = email.split("@")[0];
       
@@ -170,7 +170,7 @@ function updateAuthUI(user) {
           banner.style.fontSize = "10px";
           banner.style.padding = "2px 8px";
           banner.style.background = "rgba(255, 107, 0, 0.1)";
-          banner.style.color = "var(--tiger-orange)";
+          banner.style.color = "var(--fitbulse-orange)";
           banner.style.borderRadius = "4px";
           banner.style.marginLeft = "8px";
           banner.style.fontWeight = "800";
@@ -191,10 +191,10 @@ function updateAuthUI(user) {
 
 // Toast notification helper
 export function showToast(message) {
-  let toast = document.getElementById("gym-tiger-toast");
+  let toast = document.getElementById("fitbulse-toast");
   if (!toast) {
     toast = document.createElement("div");
-    toast.id = "gym-tiger-toast";
+    toast.id = "fitbulse-toast";
     toast.className = "toast-msg";
     document.body.appendChild(toast);
   }

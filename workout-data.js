@@ -1,4 +1,4 @@
-// Gym Tiger 6-Day Hypertrophy & Strength Program Data
+// FitBulse 6-Day Hypertrophy & Strength Program Data
 
 const focusTags = [
   { label: "Wider Back", tone: "lime" },

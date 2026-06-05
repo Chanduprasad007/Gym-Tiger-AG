@@ -1,6 +1,6 @@
-// Gym Tiger - Core Application Engine
+// FitBulse - Core Application Engine
 import { program, coachingRules, focusTags } from "./workout-data.js";
-import { db, auth, isMockMode, saveFirebaseConfig, clearFirebaseConfig, getSavedFirebaseConfig } from "./firebase-config.js";
+import { db, auth, isMockMode, saveFirebaseConfig, clearFirebaseConfig, getSavedFirebaseConfig, syncOfflineQueue } from "./firebase-config.js";
 import { initAuthUI, showAuthPanel, showToast } from "./auth.js";
 
 // Cache Core DOM Elements
@@ -39,9 +39,7 @@ const elements = {
   btnNextExercise: document.getElementById("btn-next-exercise"),
   btnFinishSession: document.getElementById("btn-finish-session"),
   btnCloseSession: document.getElementById("btn-close-session"),
-  btnAlternatives: document.getElementById("btn-alternatives"),
-  alternativesMenu: document.getElementById("alternatives-menu"),
-  alternativesList: document.getElementById("alternatives-list"),
+  alternativesQuickTabs: document.getElementById("alternatives-quick-tabs"),
   btnSearchForm: document.getElementById("btn-search-form"),
   
   // Rest Timer UI
@@ -100,6 +98,13 @@ document.addEventListener("DOMContentLoaded", () => {
   renderFocusTags();
   renderCoachingRules();
   loadSavedConfigInTextarea();
+
+  window.addEventListener("online", () => {
+    if (currentUser) {
+      syncOfflineQueue(currentUser.uid);
+      showToast("Connection restored! Syncing offline workouts...");
+    }
+  });
 });
 
 function setupBaseEventListeners() {
@@ -120,23 +125,6 @@ function setupBaseEventListeners() {
   elements.btnNextExercise?.addEventListener("click", () => navigateExercise(1));
   elements.btnFinishSession?.addEventListener("click", finishWorkoutSession);
   elements.btnCloseSession?.addEventListener("click", closeWorkoutSession);
-  
-  // Alternatives Dropdown
-  elements.btnAlternatives?.addEventListener("click", () => {
-    if (elements.alternativesMenu) {
-      const isHidden = elements.alternativesMenu.style.display === "none";
-      elements.alternativesMenu.style.display = isHidden ? "block" : "none";
-    }
-  });
-  
-  // Close alternatives menu on outside click
-  document.addEventListener("click", (e) => {
-    if (elements.alternativesMenu && elements.btnAlternatives) {
-      if (!elements.btnAlternatives.contains(e.target) && !elements.alternativesMenu.contains(e.target)) {
-        elements.alternativesMenu.style.display = "none";
-      }
-    }
-  });
   
   // Rest Timer Controls
   elements.btnSkipTimer?.addEventListener("click", skipRestTimer);
@@ -164,6 +152,9 @@ async function onUserAuthenticated(user) {
     renderActiveDayDetails();
     refreshHistoryDashboard();
     refreshOverloadAdvisor();
+    
+    // Trigger offline queue sync
+    syncOfflineQueue(user.uid);
   } else {
     // Unauthenticated: default clean rendering
     currentActiveDayLetter = "A";
@@ -246,9 +237,71 @@ function renderDaySelectorGrid() {
   });
 }
 
+function updateMuscleCompletion(day) {
+  let latsSets = 0;
+  let deltsSets = 0;
+  let absSets = 0;
+  
+  // Define standard milestone totals for a fully complete workout session
+  const latsMilestone = 12;
+  const deltsMilestone = 12;
+  const absMilestone = 8;
+  
+  day.exercises.forEach(ex => {
+    const sets = parseInt(ex.sets) || 0;
+    const nameLower = ex.name.toLowerCase();
+    const tagLower = ex.tag.toLowerCase();
+    
+    // Check if Wide Back (Lats/Teres)
+    if (tagLower === "width" || tagLower === "back" || nameLower.includes("pull") || nameLower.includes("row") || nameLower.includes("pullover")) {
+      latsSets += sets;
+    }
+    
+    // Check if Deltoids (Shoulders)
+    if (tagLower === "rear delt" || tagLower === "shoulder" || nameLower.includes("lateral") || nameLower.includes("shoulder") || nameLower.includes("military") || nameLower.includes("press") || nameLower.includes("face pull") || nameLower.includes("shrug")) {
+      if (!nameLower.includes("bench") && !nameLower.includes("chest") && !nameLower.includes("dip")) {
+        deltsSets += sets;
+      }
+    }
+    
+    // Check if Abs
+    if (tagLower === "abs" || tagLower === "core" || nameLower.includes("crunch") || nameLower.includes("raise") || nameLower.includes("rollout") || nameLower.includes("pallof") || nameLower.includes("plank") || nameLower.includes("sit-up") || nameLower.includes("woodchop") || nameLower.includes("carry")) {
+      if (!nameLower.includes("lateral")) {
+        absSets += sets;
+      }
+    }
+  });
+  
+  const latsPct = Math.min(100, Math.round((latsSets / latsMilestone) * 100));
+  const deltsPct = Math.min(100, Math.round((deltsSets / deltsMilestone) * 100));
+  const absPct = Math.min(100, Math.round((absSets / absMilestone) * 100));
+  
+  const valLats = document.getElementById("val-lats");
+  const fillLats = document.getElementById("fill-lats");
+  const valDelts = document.getElementById("val-delts");
+  const fillDelts = document.getElementById("fill-delts");
+  const valAbs = document.getElementById("val-abs");
+  const fillAbs = document.getElementById("fill-abs");
+  
+  if (valLats && fillLats) {
+    valLats.textContent = `${latsPct}% (${latsSets} sets)`;
+    fillLats.style.width = `${latsPct}%`;
+  }
+  if (valDelts && fillDelts) {
+    valDelts.textContent = `${deltsPct}% (${deltsSets} sets)`;
+    fillDelts.style.width = `${deltsPct}%`;
+  }
+  if (valAbs && fillAbs) {
+    valAbs.textContent = `${absPct}% (${absSets} sets)`;
+    fillAbs.style.width = `${absPct}%`;
+  }
+}
+
 function renderActiveDayDetails() {
   const day = program.find(d => d.letter === currentActiveDayLetter) || program[0];
   if (!day) return;
+  
+  updateMuscleCompletion(day);
   
   if (elements.detailsHeaderCopy) {
     elements.detailsHeaderCopy.innerHTML = `
@@ -267,7 +320,7 @@ function renderActiveDayDetails() {
               <h4>${ex.name}</h4>
               <p>${ex.cue}</p>
               <div class="exercise-alternatives" style="margin-top: 8px; font-size: 12px; color: var(--text-dim);">
-                <strong style="color: var(--tiger-orange); font-weight: 600;">⟲ Alternatives:</strong> 
+                <strong style="color: var(--fitbulse-orange); font-weight: 600;">⟲ Alternatives:</strong> 
                 <span>${ex.alternatives ? ex.alternatives.join(" • ") : "None"}</span>
                 <div style="margin-top: 6px;">
                   <a href="https://www.google.com/search?q=${encodeURIComponent(ex.name + ' exercise form tutorial')}" target="_blank" style="color: var(--color-cyan); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: rgba(0, 229, 229, 0.1); border-radius: 4px;">
@@ -395,25 +448,20 @@ function renderActiveExerciseSession() {
   if (elements.activeExerciseTitle) elements.activeExerciseTitle.textContent = ex.name;
   if (elements.activeExerciseCue) elements.activeExerciseCue.textContent = ex.cue;
   
-  // Update Alternatives List
-  if (elements.alternativesList && ex.alternatives) {
-    elements.alternativesList.innerHTML = ex.alternatives.map(alt => `
-      <li>
-        <button class="nav-session-btn" style="width:100%; text-align:left; background:transparent; border:none; color:var(--text-main); font-size:13px; padding:6px 8px; justify-content:flex-start;" onmouseover="this.style.background='var(--tiger-orange-dim)'" onmouseout="this.style.background='transparent'">
-          ${alt}
-        </button>
-      </li>
+  // Update Alternatives Quick Tabs
+  if (elements.alternativesQuickTabs && ex.alternatives) {
+    elements.alternativesQuickTabs.innerHTML = ex.alternatives.map((alt, idx) => `
+      <button class="nav-session-btn alt-swap-btn" data-idx="${idx}" style="height: 30px; font-size: 11px; padding: 0 12px; background: rgba(0, 229, 229, 0.05); border-color: rgba(0, 229, 229, 0.2); border-radius: 50px; color: var(--color-cyan);">
+        ${alt}
+      </button>
     `).join("");
     
-    // Add click listeners to swap exercise (for now just close menu, swapping logic could be complex)
-    const altButtons = elements.alternativesList.querySelectorAll('button');
-    altButtons.forEach((btn, idx) => {
-      btn.addEventListener('click', () => {
-        // Swap exercise logic
+    elements.alternativesQuickTabs.querySelectorAll(".alt-swap-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.dataset.idx);
         const oldName = ex.name;
         ex.name = ex.alternatives[idx];
         ex.alternatives[idx] = oldName;
-        if (elements.alternativesMenu) elements.alternativesMenu.style.display = "none";
         renderActiveExerciseSession();
       });
     });
@@ -459,7 +507,7 @@ function loadExerciseGif(ex) {
   const normName = name.toLowerCase().trim();
   
   // Determine Theme Color based on Tag
-  let themeColor = "var(--tiger-orange)";
+  let themeColor = "var(--fitbulse-orange)";
   if (["WIDTH", "BACK", "BICEPS"].includes(tag)) themeColor = "var(--color-cyan)";
   else if (["LEGS", "SHOULDER", "REAR DELT", "TRAPS"].includes(tag)) themeColor = "var(--color-violet)";
   else if (["ABS", "CORE", "LOW BACK"].includes(tag)) themeColor = "var(--color-lime)";
@@ -629,6 +677,23 @@ function loadExerciseGif(ex) {
   `;
 }
 
+async function getLastLogForExercise(exerciseName) {
+  if (!currentUser) return null;
+  try {
+    const history = await db.getWorkoutsHistory(currentUser.uid);
+    if (!history || history.length === 0) return null;
+    const nameLower = exerciseName.toLowerCase();
+    for (const session of history) {
+      if (!session.logs) continue;
+      const found = session.logs.find(log => log.name.toLowerCase() === nameLower);
+      if (found) return found;
+    }
+  } catch (error) {
+    console.warn("getLastLogForExercise failed:", error);
+  }
+  return null;
+}
+
 function renderActiveSetsLogger(exercise) {
   if (!elements.setsLoggerTable) return;
   
@@ -637,7 +702,10 @@ function renderActiveSetsLogger(exercise) {
       const isDone = set.completed;
       return `
         <div class="set-row ${isDone ? "completed" : ""}" data-set="${set.setNum}">
-          <div class="set-num">Set ${set.setNum}</div>
+          <div class="set-num">
+            <span>Set ${set.setNum}</span>
+            <span class="set-overload-tip" data-set="${set.setNum}"></span>
+          </div>
           
           <div class="set-input-group">
             <label>Weight (kg)</label>
@@ -661,6 +729,55 @@ function renderActiveSetsLogger(exercise) {
       `;
     }).join("");
     
+  // Fetch overload advice from history
+  getLastLogForExercise(exercise.name).then(lastLog => {
+    if (!lastLog || !lastLog.sets) return;
+    
+    const repsRange = exercise.repsPrescribed.split("-");
+    const minReps = parseInt(repsRange[0]) || 8;
+    const maxReps = parseInt(repsRange[1] || repsRange[0]) || 12;
+    const isLower = ["squat", "deadlift", "calf", "leg", "rdl"].some(part => exercise.name.toLowerCase().includes(part));
+    const increment = isLower ? 5 : 2.5;
+
+    exercise.sets.forEach(set => {
+      const lastSet = lastLog.sets.find(s => s.setNum === set.setNum);
+      if (!lastSet) return;
+      
+      const row = elements.setsLoggerTable.querySelector(`.set-row[data-set="${set.setNum}"]`);
+      if (!row) return;
+      
+      const tipElement = row.querySelector(".set-overload-tip");
+      const weightInput = row.querySelector(".weight-input");
+      const repsInput = row.querySelector(".reps-input");
+      
+      // Determine targets
+      let targetWeight, targetReps;
+      if (lastSet.reps >= maxReps) {
+        targetWeight = lastSet.weight + increment;
+        targetReps = minReps;
+      } else {
+        targetWeight = lastSet.weight;
+        targetReps = maxReps;
+      }
+      
+      // Set the tip
+      if (tipElement) {
+        tipElement.textContent = `🎯 ${targetWeight}kg x ${targetReps}`;
+        tipElement.style.display = "block";
+      }
+      
+      // Smart helper: if inputs are empty and set is not logged, pre-fill them
+      if (!weightInput.value && !set.completed) {
+        weightInput.value = targetWeight;
+        set.weight = targetWeight;
+      }
+      if (!repsInput.value && !set.completed) {
+        repsInput.value = targetReps;
+        set.reps = targetReps;
+      }
+    });
+  });
+
   // Add logger listeners
   elements.setsLoggerTable.querySelectorAll(".set-row").forEach(row => {
     const setNum = parseInt(row.dataset.set);
@@ -710,6 +827,17 @@ function renderActiveSetsLogger(exercise) {
         const restVal = exercise.restPrescribed || "90s";
         const seconds = parseInt(restVal.replace("s", "")) || 90;
         triggerRestTimer(seconds);
+        
+        // AUTO-FOCUS next set
+        const nextSetNum = setNum + 1;
+        const nextRow = elements.setsLoggerTable.querySelector(`.set-row[data-set="${nextSetNum}"]`);
+        if (nextRow) {
+          const nextWeightInput = nextRow.querySelector(".weight-input");
+          if (nextWeightInput) {
+            nextWeightInput.focus();
+            nextWeightInput.select();
+          }
+        }
       }
     });
   });
@@ -883,7 +1011,7 @@ async function finishWorkoutSession() {
     logs: filteredExercises
   };
 
-  showToast("Saving session as Gym Tiger...");
+  showToast("Saving session as FitBulse...");
 
   try {
     // 1. Write to Firestore history collection
