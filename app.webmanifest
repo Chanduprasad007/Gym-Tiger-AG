@@ -1,6 +1,6 @@
 {
-  "name": "FitBulse Training Program",
-  "short_name": "FitBulse",
+  "name": "Gym - Antigravity Training Program",
+  "short_name": "Gym - Antigravity",
   "description": "Premium 6-day strength and hypertrophy training split with interactive logging and progressive overload advisor.",
   "start_url": "./",
   "display": "standalone",

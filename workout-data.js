@@ -1,4 +1,4 @@
-// FitBulse 6-Day Hypertrophy & Strength Program Data
+// Gym - Antigravity 6-Day Hypertrophy & Strength Program Data
 
 const focusTags = [
   { label: "Wider Back", tone: "lime" },

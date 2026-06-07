@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fitbulse-v1';
+const CACHE_NAME = 'gym-antigravity-v1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

@@ -1,4 +1,4 @@
-// FitBulse - Core Application Engine
+// Gym - Antigravity - Core Application Engine
 import { program, coachingRules, focusTags } from "./workout-data.js";
 import { db, auth, isMockMode, saveFirebaseConfig, clearFirebaseConfig, getSavedFirebaseConfig, syncOfflineQueue } from "./firebase-config.js";
 import { initAuthUI, showAuthPanel, showToast } from "./auth.js";
@@ -41,6 +41,9 @@ const elements = {
   btnCloseSession: document.getElementById("btn-close-session"),
   alternativesQuickTabs: document.getElementById("alternatives-quick-tabs"),
   btnSearchForm: document.getElementById("btn-search-form"),
+  workoutCardsGrid: document.getElementById("workout-cards-grid"),
+  workoutSummaryOverlay: document.getElementById("workout-summary-overlay"),
+  btnCloseSummary: document.getElementById("btn-close-summary"),
   
   // Rest Timer UI
   timerSeconds: document.getElementById("timer-seconds"),
@@ -65,6 +68,7 @@ let restTimerInterval = null;
 let restTimerTotalSec = 90;
 let restTimerRemainingSec = 0;
 let restTimerIsPaused = false;
+let currentFilter = "all";
 
 // WorkoutX GIF cache seeds
 const WORKOUTX_GIFS = {
@@ -130,6 +134,26 @@ function setupBaseEventListeners() {
   elements.btnSkipTimer?.addEventListener("click", skipRestTimer);
   elements.btnPauseTimer?.addEventListener("click", togglePauseRestTimer);
   elements.btnAddTimer?.addEventListener("click", add30sRestTimer);
+
+  // Filter Bar listeners
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentFilter = btn.dataset.filter;
+      renderWorkoutCards();
+    });
+  });
+  
+  // Close summary listener
+  elements.btnCloseSummary?.addEventListener("click", () => {
+    elements.workoutSummaryOverlay?.classList.remove("active");
+    elements.workoutSessionOverlay?.classList.remove("active");
+    renderWorkoutCards();
+    renderActiveDayDetails();
+    refreshHistoryDashboard();
+    refreshOverloadAdvisor();
+  });
 }
 
 // ==========================================
@@ -148,7 +172,7 @@ async function onUserAuthenticated(user) {
     }
     
     // Refresh dashboards
-    renderDaySelectorGrid();
+    renderWorkoutCards();
     renderActiveDayDetails();
     refreshHistoryDashboard();
     refreshOverloadAdvisor();
@@ -158,7 +182,7 @@ async function onUserAuthenticated(user) {
   } else {
     // Unauthenticated: default clean rendering
     currentActiveDayLetter = "A";
-    renderDaySelectorGrid();
+    renderWorkoutCards();
     renderActiveDayDetails();
     resetStatsDashboard();
   }
@@ -189,50 +213,128 @@ function renderCoachingRules() {
   }
 }
 
-function renderDaySelectorGrid() {
-  if (!elements.daySelectorGrid) return;
+function getWorkoutMetadata(dayLetter) {
+  switch (dayLetter) {
+    case "A":
+      return { category: "chest-arms", duration: "60 mins", difficulty: "Intermediate", accent: "var(--color-orange)", accentDim: "rgba(255, 107, 0, 0.15)", gradient: "linear-gradient(135deg, var(--color-orange) 0%, var(--color-pink) 100%)" };
+    case "B":
+      return { category: "back-shoulders", duration: "60 mins", difficulty: "Intermediate", accent: "var(--color-cyan)", accentDim: "rgba(0, 229, 229, 0.15)", gradient: "linear-gradient(135deg, var(--color-cyan) 0%, var(--color-lime) 100%)" };
+    case "C":
+      return { category: "legs-core", duration: "75 mins", difficulty: "Advanced", accent: "var(--color-violet)", accentDim: "rgba(138, 43, 226, 0.15)", gradient: "linear-gradient(135deg, var(--color-violet) 0%, var(--color-pink) 100%)" };
+    case "D":
+      return { category: "chest-arms", duration: "60 mins", difficulty: "Intermediate", accent: "var(--color-orange)", accentDim: "rgba(255, 107, 0, 0.15)", gradient: "linear-gradient(135deg, var(--color-orange) 0%, var(--color-pink) 100%)" };
+    case "E":
+      return { category: "back-shoulders", duration: "60 mins", difficulty: "Intermediate", accent: "var(--color-cyan)", accentDim: "rgba(0, 229, 229, 0.15)", gradient: "linear-gradient(135deg, var(--color-cyan) 0%, var(--color-lime) 100%)" };
+    case "F":
+      return { category: "legs-core", duration: "75 mins", difficulty: "Advanced", accent: "var(--color-violet)", accentDim: "rgba(138, 43, 226, 0.15)", gradient: "linear-gradient(135deg, var(--color-violet) 0%, var(--color-pink) 100%)" };
+    default:
+      return { category: "chest-arms", duration: "60 mins", difficulty: "Intermediate", accent: "var(--gym-antigravity-orange)", accentDim: "rgba(255, 107, 0, 0.15)", gradient: "var(--gym-antigravity-gradient)" };
+  }
+}
+
+function getFavorites() {
+  try {
+    return JSON.parse(localStorage.getItem("gym-antigravity_favorites") || "[]");
+  } catch (e) {
+    return [];
+  }
+}
+
+function toggleFavorite(letter) {
+  let favs = getFavorites();
+  if (favs.includes(letter)) {
+    favs = favs.filter(l => l !== letter);
+  } else {
+    favs.push(letter);
+  }
+  localStorage.setItem("gym-antigravity_favorites", JSON.stringify(favs));
+  renderWorkoutCards();
+}
+
+function renderWorkoutCards() {
+  const container = document.getElementById("workout-cards-grid");
+  if (!container) return;
   
-  elements.daySelectorGrid.innerHTML = program
-    .map(day => {
-      const isSelected = day.letter === currentActiveDayLetter;
-      return `
-        <div class="day-card ${day.accent} ${isSelected ? "selected" : ""}" data-letter="${day.letter}">
-          <div class="day-card-header">
-            <div>
-              <p>${day.day}</p>
-              <h3>${day.title}</h3>
-            </div>
-            <div class="day-letter">${day.letter}</div>
-          </div>
-          <p class="day-intent">${day.intent}</p>
-          <div class="day-exercises-count">
-            <span></span>
-            ${day.exercises.length} Movements
-          </div>
-        </div>
-      `;
-    }).join("");
+  const favs = getFavorites();
+  
+  let filteredProgram = program.filter(day => {
+    const meta = getWorkoutMetadata(day.letter);
+    const isFav = favs.includes(day.letter);
     
-  // Add Day selector click listeners
-  elements.daySelectorGrid.querySelectorAll(".day-card").forEach(card => {
-    card.addEventListener("click", async () => {
-      const letter = card.dataset.letter;
+    if (currentFilter === "all") return true;
+    if (currentFilter === "favs") return isFav;
+    
+    if (currentFilter === "back-shoulders") return meta.category === "back-shoulders";
+    if (currentFilter === "chest-arms") return meta.category === "chest-arms";
+    if (currentFilter === "legs-core") return meta.category === "legs-core";
+    
+    return true;
+  });
+  
+  if (filteredProgram.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; color: var(--text-dim); padding: 40px; font-size: 14px;">
+        No workouts found for this filter.
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = filteredProgram.map(day => {
+    const meta = getWorkoutMetadata(day.letter);
+    const isFav = favs.includes(day.letter);
+    const isSelected = day.letter === currentActiveDayLetter;
+    
+    return `
+      <div class="workout-card ${isSelected ? 'selected' : ''}" style="--card-accent: ${meta.accent}; --card-accent-dim: ${meta.accentDim}; --card-gradient: ${meta.gradient};" data-letter="${day.letter}">
+        <div class="workout-card-header">
+          <div class="workout-card-title-block">
+            <h3>${day.title}</h3>
+            <p>${day.day}</p>
+          </div>
+          <button class="workout-card-fav-btn ${isFav ? 'is-fav' : ''}" data-letter="${day.letter}" aria-label="Favorite workout">
+            ${isFav ? '❤️' : '🤍'}
+          </button>
+        </div>
+        
+        <div class="workout-card-footer">
+          <div class="workout-card-specs">
+            <span>⏱ ${meta.duration}</span>
+            <span>📶 ${meta.difficulty}</span>
+          </div>
+          <button class="workout-card-btn" data-letter="${day.letter}" aria-label="Start workout">
+            ▶ Start
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+  
+  // Add card selection and action click handlers
+  container.querySelectorAll(".workout-card").forEach(card => {
+    const letter = card.dataset.letter;
+    
+    // Card click (selects workout, updating details panel below)
+    card.addEventListener("click", (e) => {
+      // Prevent selecting when clicking buttons inside card
+      if (e.target.closest(".workout-card-fav-btn") || e.target.closest(".workout-card-btn")) return;
+      
       currentActiveDayLetter = letter;
-      
-      // Update Day selector UI
-      elements.daySelectorGrid.querySelectorAll(".day-card").forEach(c => c.classList.remove("selected"));
+      container.querySelectorAll(".workout-card").forEach(c => c.classList.remove("selected"));
       card.classList.add("selected");
-      
       renderActiveDayDetails();
-      
-      // Persist active day to Firestore/Mock database
-      if (currentUser) {
-        try {
-          await db.saveUserProfile(currentUser.uid, { activeDay: letter });
-        } catch (e) {
-          console.warn("Could not save active day selection", e);
-        }
-      }
+    });
+    
+    // Favorite toggle click
+    card.querySelector(".workout-card-fav-btn").addEventListener("click", () => {
+      toggleFavorite(letter);
+    });
+    
+    // Start button click
+    card.querySelector(".workout-card-btn").addEventListener("click", () => {
+      currentActiveDayLetter = letter;
+      renderActiveDayDetails();
+      startWorkoutSession();
     });
   });
 }
@@ -320,7 +422,7 @@ function renderActiveDayDetails() {
               <h4>${ex.name}</h4>
               <p>${ex.cue}</p>
               <div class="exercise-alternatives" style="margin-top: 8px; font-size: 12px; color: var(--text-dim);">
-                <strong style="color: var(--fitbulse-orange); font-weight: 600;">⟲ Alternatives:</strong> 
+                <strong style="color: var(--gym-antigravity-orange); font-weight: 600;">⟲ Alternatives:</strong> 
                 <span>${ex.alternatives ? ex.alternatives.join(" • ") : "None"}</span>
                 <div style="margin-top: 6px;">
                   <a href="https://www.google.com/search?q=${encodeURIComponent(ex.name + ' exercise form tutorial')}" target="_blank" style="color: var(--color-cyan); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: rgba(0, 229, 229, 0.1); border-radius: 4px;">
@@ -439,6 +541,23 @@ function startSessionClock() {
   }, 1000);
 }
 
+function updateWizardProgress() {
+  const session = activeSessionData;
+  if (!session) return;
+  
+  const total = session.exercises.length;
+  const current = session.currentExerciseIdx;
+  const percent = Math.round((current / total) * 100);
+  
+  const fill = document.getElementById("wizard-progress-fill");
+  const stepInfo = document.getElementById("wizard-step-info");
+  const percentInfo = document.getElementById("wizard-percent-info");
+  
+  if (fill) fill.style.width = `${percent}%`;
+  if (stepInfo) stepInfo.textContent = `Exercise ${current + 1} of ${total}`;
+  if (percentInfo) percentInfo.textContent = `${percent}% Completed`;
+}
+
 function renderActiveExerciseSession() {
   const session = activeSessionData;
   const ex = session.exercises[session.currentExerciseIdx];
@@ -490,6 +609,9 @@ function renderActiveExerciseSession() {
       elements.btnFinishSession.style.display = "none";
     }
   }
+  
+  updateWizardProgress();
+}
 }
 
 function loadExerciseGif(ex) {
@@ -507,7 +629,7 @@ function loadExerciseGif(ex) {
   const normName = name.toLowerCase().trim();
   
   // Determine Theme Color based on Tag
-  let themeColor = "var(--fitbulse-orange)";
+  let themeColor = "var(--gym-antigravity-orange)";
   if (["WIDTH", "BACK", "BICEPS"].includes(tag)) themeColor = "var(--color-cyan)";
   else if (["LEGS", "SHOULDER", "REAR DELT", "TRAPS"].includes(tag)) themeColor = "var(--color-violet)";
   else if (["ABS", "CORE", "LOW BACK"].includes(tag)) themeColor = "var(--color-lime)";
@@ -1011,7 +1133,7 @@ async function finishWorkoutSession() {
     logs: filteredExercises
   };
 
-  showToast("Saving session as FitBulse...");
+  showToast("Saving session as Gym - Antigravity...");
 
   try {
     // 1. Write to Firestore history collection
@@ -1042,15 +1164,24 @@ async function finishWorkoutSession() {
     
     showToast("Workout Logged! Day split advanced.");
     
-    // Close Session Overlay & Refresh Dashboard Widgets
-    if (elements.workoutSessionOverlay) {
-      elements.workoutSessionOverlay.classList.remove("active");
-    }
+    // Calculate streak and metrics for summary screen
+    const history = await db.getWorkoutsHistory(currentUser.uid);
+    const streak = calculateStreak(history);
     
-    renderDaySelectorGrid();
-    renderActiveDayDetails();
-    refreshHistoryDashboard();
-    refreshOverloadAdvisor();
+    // Populate summary screen metrics
+    const summaryTimeVal = document.getElementById("summary-time-val");
+    const summaryVolumeVal = document.getElementById("summary-volume-val");
+    const summarySetsVal = document.getElementById("summary-sets-val");
+    const summaryStreakVal = document.getElementById("summary-streak-val");
+    
+    if (summaryTimeVal) summaryTimeVal.textContent = `${workoutEntry.durationMinutes}m`;
+    if (summaryVolumeVal) summaryVolumeVal.textContent = `${workoutEntry.totalVolumeKg} kg`;
+    if (summarySetsVal) summarySetsVal.textContent = `${workoutEntry.totalSets}`;
+    if (summaryStreakVal) summaryStreakVal.textContent = `${streak} Day Streak!`;
+    
+    if (elements.workoutSummaryOverlay) {
+      elements.workoutSummaryOverlay.classList.add("active");
+    }
   } catch (error) {
     console.error("Failed to save session:", error);
     showToast("Failed to save workout session.");
@@ -1070,6 +1201,40 @@ function setRingProgress(elementId, pct) {
     circle.style.strokeDasharray = `${circumference}`;
     circle.style.strokeDashoffset = offset;
   }
+}
+
+function calculateStreak(history) {
+  if (!history || history.length === 0) return 0;
+  
+  const dates = history.map(h => {
+    const d = h.startTime.toDate ? h.startTime.toDate() : new Date(h.startTime);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  });
+  
+  // Remove duplicates and sort descending
+  const uniqueDates = [...new Set(dates)].sort((a,b) => b - a);
+  
+  const today = new Date();
+  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const yesterdayMidnight = todayMidnight - 24 * 60 * 60 * 1000;
+  
+  if (uniqueDates[0] < yesterdayMidnight) {
+    return 0; // Streak broken
+  }
+  
+  let streak = 1;
+  let current = uniqueDates[0];
+  
+  for (let i = 1; i < uniqueDates.length; i++) {
+    const prev = uniqueDates[i];
+    if (current - prev === 24 * 60 * 60 * 1000) {
+      streak++;
+      current = prev;
+    } else if (current - prev > 24 * 60 * 60 * 1000) {
+      break;
+    }
+  }
+  return streak;
 }
 
 async function refreshHistoryDashboard() {
@@ -1095,6 +1260,13 @@ async function refreshHistoryDashboard() {
       elements.completionRateStat.textContent = completions;
       setRingProgress("progression-ring-progress", (completions / 12) * 100);
     }
+    
+    // Update Header Badges
+    const streak = calculateStreak(list);
+    const streakCountEl = document.getElementById("nav-streak-count");
+    const completedCountEl = document.getElementById("nav-completed-count");
+    if (streakCountEl) streakCountEl.textContent = streak;
+    if (completedCountEl) completedCountEl.textContent = list.length;
     
     // Render history feed list
     if (elements.historyList) {

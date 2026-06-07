@@ -1,4 +1,4 @@
-// FitBulse Firebase Configuration & Initialization Module
+// Gym - Antigravity Firebase Configuration & Initialization Module
 // Supports dynamic client-side Firebase configuration and high-fidelity mock fallbacks for offline demo mode.
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -24,7 +24,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // Retrieve saved Firebase Web Configuration from localStorage
-const STORAGE_KEY = "fitbulse_firebase_config";
+const STORAGE_KEY = "gym-antigravity_firebase_config";
 let savedConfig = null;
 
 try {
@@ -41,28 +41,19 @@ let firebaseAuth = null;
 let firebaseDb = null;
 let isRealFirebase = false;
 
-if (savedConfig && savedConfig.apiKey && savedConfig.projectId) {
-  try {
-    firebaseApp = initializeApp(savedConfig);
-    firebaseAuth = getAuth(firebaseApp);
-    firebaseDb = getFirestore(firebaseApp);
-    isRealFirebase = true;
-    console.log("FitBulse: Connected to user's custom Firebase Project: " + savedConfig.projectId);
-  } catch (error) {
-    console.error("FitBulse: Failed to initialize Firebase with user's config. Falling back to Mock mode.", error);
-  }
-}
+// Force LocalStorage mock mode for frictionless access
+isRealFirebase = false;
 
 // ==========================================
 // HIGH-FIDELITY MOCK FALLBACK IMPLEMENTATION
 // ==========================================
 
 const mockState = {
-  currentUser: null,
+  currentUser: { uid: "local-user-gym-antigravity", email: "athlete@gym-antigravity.com", displayName: "Athlete" },
   authListeners: new Set(),
-  workoutsHistory: JSON.parse(localStorage.getItem("fitbulse_mock_history") || "[]"),
-  personalRecords: JSON.parse(localStorage.getItem("fitbulse_mock_prs") || "{}"),
-  userPreferences: JSON.parse(localStorage.getItem("fitbulse_mock_prefs") || '{"activeDay": "A"}')
+  workoutsHistory: JSON.parse(localStorage.getItem("gym-antigravity_mock_history") || "[]"),
+  personalRecords: JSON.parse(localStorage.getItem("gym-antigravity_mock_prs") || "{}"),
+  userPreferences: JSON.parse(localStorage.getItem("gym-antigravity_mock_prefs") || '{"activeDay": "A"}')
 };
 
 const mockAuth = {
@@ -71,7 +62,7 @@ const mockAuth = {
     if (!email.includes("@") || password.length < 6) {
       throw new Error("auth/invalid-login-credentials");
     }
-    const mockUser = { uid: "mock-uid-fitbulse", email, displayName: email.split("@")[0] };
+    const mockUser = { uid: "mock-uid-gym-antigravity", email, displayName: email.split("@")[0] };
     mockState.currentUser = mockUser;
     triggerAuthChange(mockUser);
     return { user: mockUser };
@@ -80,7 +71,7 @@ const mockAuth = {
     if (!email.includes("@") || password.length < 6) {
       throw new Error("auth/weak-password");
     }
-    const mockUser = { uid: "mock-uid-fitbulse", email, displayName: email.split("@")[0] };
+    const mockUser = { uid: "mock-uid-gym-antigravity", email, displayName: email.split("@")[0] };
     mockState.currentUser = mockUser;
     triggerAuthChange(mockUser);
     return { user: mockUser };
@@ -113,7 +104,7 @@ const dbOperations = {
       await setDoc(doc(firebaseDb, "users", uid), data, { merge: true });
     } else {
       mockState.userPreferences = { ...mockState.userPreferences, ...data };
-      localStorage.setItem("fitbulse_mock_prefs", JSON.stringify(mockState.userPreferences));
+      localStorage.setItem("gym-antigravity_mock_prefs", JSON.stringify(mockState.userPreferences));
     }
   },
 
@@ -130,7 +121,7 @@ const dbOperations = {
   // Save completed workout session
   saveWorkoutSession: async (uid, workoutSession) => {
     // Save to local storage cache immediately so the user doesn't lose anything
-    const localCacheKey = `fitbulse_history_cache_${uid}`;
+    const localCacheKey = `gym-antigravity_history_cache_${uid}`;
     let cachedHistory = [];
     try {
       cachedHistory = JSON.parse(localStorage.getItem(localCacheKey) || "[]");
@@ -147,27 +138,27 @@ const dbOperations = {
       try {
         const ref = collection(firebaseDb, "users", uid, "workouts_history");
         await addDoc(ref, workoutSession);
-        console.log("FitBulse: Workout session saved to Firestore.");
+        console.log("Gym - Antigravity: Workout session saved to Firestore.");
       } catch (error) {
-        console.warn("FitBulse: Network error, queuing workout for background sync.", error);
+        console.warn("Gym - Antigravity: Network error, queuing workout for background sync.", error);
         // Add to offline sync queue
         let queue = [];
         try {
-          queue = JSON.parse(localStorage.getItem(`fitbulse_sync_queue_${uid}`) || "[]");
+          queue = JSON.parse(localStorage.getItem(`gym-antigravity_sync_queue_${uid}`) || "[]");
         } catch (e) {}
         queue.push(workoutSession);
-        localStorage.setItem(`fitbulse_sync_queue_${uid}`, JSON.stringify(queue));
+        localStorage.setItem(`gym-antigravity_sync_queue_${uid}`, JSON.stringify(queue));
       }
     } else {
       mockState.workoutsHistory.unshift(sessionWithId);
-      localStorage.setItem("fitbulse_mock_history", JSON.stringify(mockState.workoutsHistory));
+      localStorage.setItem("gym-antigravity_mock_history", JSON.stringify(mockState.workoutsHistory));
     }
   },
 
   // Fetch completed workouts history
   getWorkoutsHistory: async (uid) => {
     // Load local cache first so it renders instantly
-    const localCacheKey = `fitbulse_history_cache_${uid}`;
+    const localCacheKey = `gym-antigravity_history_cache_${uid}`;
     let cachedHistory = [];
     try {
       cachedHistory = JSON.parse(localStorage.getItem(localCacheKey) || "[]");
@@ -187,7 +178,7 @@ const dbOperations = {
         localStorage.setItem(localCacheKey, JSON.stringify(list));
         return list;
       } catch (error) {
-        console.warn("FitBulse: Failed to fetch from Firestore, serving cached history", error);
+        console.warn("Gym - Antigravity: Failed to fetch from Firestore, serving cached history", error);
         return cachedHistory;
       }
     } else {
@@ -203,7 +194,7 @@ const dbOperations = {
     } else {
       const key = exerciseName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       mockState.personalRecords[key] = prData;
-      localStorage.setItem("fitbulse_mock_prs", JSON.stringify(mockState.personalRecords));
+      localStorage.setItem("gym-antigravity_mock_prs", JSON.stringify(mockState.personalRecords));
     }
   },
 
@@ -233,9 +224,9 @@ export function saveFirebaseConfig(config) {
 
 export function clearFirebaseConfig() {
   localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem("fitbulse_mock_history");
-  localStorage.removeItem("fitbulse_mock_prs");
-  localStorage.removeItem("fitbulse_mock_prefs");
+  localStorage.removeItem("gym-antigravity_mock_history");
+  localStorage.removeItem("gym-antigravity_mock_prs");
+  localStorage.removeItem("gym-antigravity_mock_prefs");
 }
 
 export function getSavedFirebaseConfig() {
@@ -245,7 +236,7 @@ export function getSavedFirebaseConfig() {
 // Synchronize offline queued workouts to Firestore when online
 export async function syncOfflineQueue(uid) {
   if (!isRealFirebase || !navigator.onLine) return;
-  const queueKey = `fitbulse_sync_queue_${uid}`;
+  const queueKey = `gym-antigravity_sync_queue_${uid}`;
   let queue = [];
   try {
     queue = JSON.parse(localStorage.getItem(queueKey) || "[]");
@@ -253,7 +244,7 @@ export async function syncOfflineQueue(uid) {
   
   if (queue.length === 0) return;
   
-  console.log(`FitBulse: Attempting to sync ${queue.length} offline workouts...`);
+  console.log(`Gym - Antigravity: Attempting to sync ${queue.length} offline workouts...`);
   const ref = collection(firebaseDb, "users", uid, "workouts_history");
   
   const failedToSync = [];
@@ -267,7 +258,7 @@ export async function syncOfflineQueue(uid) {
   
   if (failedToSync.length === 0) {
     localStorage.removeItem(queueKey);
-    console.log("FitBulse: All offline workouts synchronized successfully.");
+    console.log("Gym - Antigravity: All offline workouts synchronized successfully.");
   } else {
     localStorage.setItem(queueKey, JSON.stringify(failedToSync));
   }

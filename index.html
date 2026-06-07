@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="FitBulse - Premium 6-day strength and hypertrophy training split with interactive logging, dynamic rest timers, smart progressive overload tracking, and Firestore backend sync.">
+  <meta name="description" content="Gym - Antigravity - Premium 6-day strength and hypertrophy training split with interactive logging, dynamic rest timers, smart progressive overload tracking, and Firestore backend sync.">
   <meta name="theme-color" content="#050507">
   
-  <title>FitBulse | Interactive Fitness Split & Tracker</title>
+  <title>Gym - Antigravity | Interactive Fitness Split & Tracker</title>
   
   <link rel="stylesheet" href="./styles.css">
   <link rel="manifest" href="./app.webmanifest">
@@ -28,26 +28,21 @@
     
     <!-- HEADER NAVBAR -->
     <header class="navbar" role="banner">
-      <a href="#" class="nav-brand" aria-label="FitBulse Home">
+      <a href="#" class="nav-brand" aria-label="Gym - Antigravity Home">
         <div class="brand-icon" aria-hidden="true">F</div>
-        <span>FIT<span class="gradient-text">BULSE</span></span>
+        <span>GYM - <span class="gradient-text">ANTIGRAVITY</span></span>
       </a>
       
       <div class="nav-actions">
-        <button class="nav-btn" id="btn-settings-trigger" aria-label="Open database sync settings">
-          ⚙️ DB Connect
-        </button>
-        <div id="nav-user-badge">
-          <!-- Populated by auth.js: user initials badge or 'Get Started' trigger button -->
-          <button class="nav-btn primary" id="btn-login-trigger">Get Started</button>
-        </div>
+        <div id="nav-streak-badge" class="nav-badge-item">🔥 <span id="nav-streak-count">0</span> Day Streak</div>
+        <div id="nav-completed-badge" class="nav-badge-item">🏆 <span id="nav-completed-count">0</span> Done</div>
       </div>
     </header>
 
     <!-- DASHBOARD GLOWING HERO -->
-    <section class="hero-section" aria-label="FitBulse overview banner">
+    <section class="hero-section" aria-label="Gym - Antigravity overview banner">
       <div class="hero-content">
-        <h1>UNLEASH YOUR <br><span class="gradient-text">FITBULSE PROGRESSION</span></h1>
+        <h1>UNLEASH YOUR <br><span class="gradient-text">GYM - ANTIGRAVITY PROGRESSION</span></h1>
         
         <!-- Fluid Activity Wave Chart -->
         <div class="activity-chart-card">
@@ -128,10 +123,7 @@
         </div>
       </div>
       
-      <!-- Premium decorative brand mark -->
-      <div class="brand-badge-canvas" style="display: flex; justify-content: center; align-items: center; filter: drop-shadow(var(--fitbulse-glow-intense));" aria-hidden="true">
-        <span style="font-size: 140px;">💪</span>
-      </div>
+
     </section>
 
     <!-- MAIN DASHBOARD CONTENT GRID -->
@@ -139,14 +131,22 @@
       
       <!-- LEFT CONTAINER: WORKOUT SPLIT BOARD -->
       <section class="split-board-container" aria-label="Training split selector">
-        <div class="dashboard-title-bar">
-          <h2>Training Board</h2>
-          <div id="focus-tags" class="focus-tags"></div>
+        <div class="dashboard-title-bar" style="flex-direction: column; align-items: flex-start; gap: 16px; width: 100%;">
+          <h2>Workout Programs</h2>
+          
+          <!-- Category Filter Bar -->
+          <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">All Workouts</button>
+            <button class="filter-btn" data-filter="back-shoulders">Back & Shoulders</button>
+            <button class="filter-btn" data-filter="chest-arms">Chest & Arms</button>
+            <button class="filter-btn" data-filter="legs-core">Legs & Core</button>
+            <button class="filter-btn favs-btn" data-filter="favs">❤️ Favorites</button>
+          </div>
         </div>
 
-        <!-- 6-Day Selectable Horizontal Split Checklist -->
-        <div class="day-selector-grid" id="day-selector-grid" role="listbox" aria-label="Choose workout day">
-          <!-- Populated by app.js: renders Day A - Day F cards -->
+        <!-- Workout Cards Grid -->
+        <div class="workout-cards-grid" id="workout-cards-grid">
+          <!-- Populated dynamically by app.js -->
         </div>
 
         <!-- Selected Day Details Panel view -->
@@ -219,13 +219,7 @@
           </div>
         </section>
 
-        <!-- Coaching Guidelines priorities -->
-        <section class="widget-card" aria-label="Split coaching priorities">
-          <h3>⚡ Split Priorities</h3>
-          <div class="coaching-rules-grid" id="coaching-rules-grid">
-            <!-- Populated by app.js from workout-data rules -->
-          </div>
-        </section>
+
 
         <!-- Workout History sync list logs -->
         <section class="widget-card" aria-label="Workout history logs">
@@ -250,6 +244,17 @@
   <div class="workout-session-overlay" id="workout-session-overlay" role="dialog" aria-modal="true" aria-labelledby="session-day-title">
     <div class="session-container">
       
+      <!-- Step-by-Step progress tracker -->
+      <div class="wizard-progress-container">
+        <div class="wizard-progress-bar">
+          <div class="wizard-progress-fill" id="wizard-progress-fill" style="width: 0%;"></div>
+        </div>
+        <div class="wizard-progress-labels">
+          <span id="wizard-step-info">Exercise 1 of 8</span>
+          <span id="wizard-percent-info">0% Completed</span>
+        </div>
+      </div>
+      
       <!-- Overlay HUD Header -->
       <header class="session-header">
         <div class="session-title-block">
@@ -264,9 +269,9 @@
           </div>
           <div class="hud-item" style="border-color: var(--border-glass-bright);">
             <span>Theme</span>
-            <strong style="color: var(--color-cyan);">FitBulse</strong>
+            <strong style="color: var(--color-cyan);">Gym - Antigravity</strong>
           </div>
-          <button class="nav-session-btn cancel" id="btn-close-session" style="border-color: rgba(255, 107, 0, 0.25); color: var(--fitbulse-orange); background: rgba(255, 107, 0, 0.05); font-weight: 700; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0 16px; gap: 6px; border-radius: var(--border-radius-sm);" aria-label="Cancel active session and return to board">
+          <button class="nav-session-btn cancel" id="btn-close-session" style="border-color: rgba(255, 107, 0, 0.25); color: var(--gym-antigravity-orange); background: rgba(255, 107, 0, 0.05); font-weight: 700; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0 16px; gap: 6px; border-radius: var(--border-radius-sm);" aria-label="Cancel active session and return to board">
             ✕ Exit
           </button>
         </div>
@@ -360,60 +365,39 @@
     </div>
   </div>
 
-  <!-- 2. AUTHENTICATION DOCK OVERLAY DIALOG -->
-  <div class="auth-container" id="auth-container" role="dialog" aria-modal="true" aria-labelledby="auth-header-title">
-    <div class="auth-panel" id="auth-panel">
-      <header class="auth-header">
-        <h2 id="auth-header-title">FitBulse Login</h2>
-        <p id="auth-header-desc">Enter your email to resume your progression split</p>
-      </header>
-
-      <form class="auth-form" id="auth-form" aria-label="Authentication form">
-        <div class="input-field">
-          <label for="auth-email">Email Address</label>
-          <input type="email" id="auth-email" class="input-box" placeholder="athlete@fitbulse.com" required autocomplete="email">
-        </div>
-
-        <div class="input-field">
-          <label for="auth-password">Password</label>
-          <input type="password" id="auth-password" class="input-box" placeholder="••••••••" required autocomplete="current-password">
-        </div>
-
-        <button type="submit" class="auth-submit-btn" id="auth-submit-btn">
-          Launch Dashboard
-        </button>
-      </form>
-
-      <div class="auth-switch">
-        Don't have an account? <span id="auth-switch-span">Register here</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- 3. DATABASE SETTINGS WEB OVERLAY PANEL -->
-  <div class="settings-overlay" id="settings-overlay" aria-hidden="true"></div>
-  <div class="settings-panel" id="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
-    <header class="settings-header">
-      <h3 id="settings-title">Firebase Database Config</h3>
-      <button class="settings-close" id="settings-close-btn" aria-label="Close settings dialog">×</button>
-    </header>
-    
-    <div style="display: flex; flex-direction: column; gap: 16px;">
-      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
-        Paste your Firebase Web App Config JSON here to connect FitBulse to your custom Cloud Firestore backend database. 
-        This synchronizes your workouts instantly to both this web client and your mobile Flutter applications!
-      </p>
+  <!-- 2. WORKOUT SUMMARY CELEBRATION OVERLAY -->
+  <div class="workout-summary-overlay" id="workout-summary-overlay" role="dialog" aria-modal="true" aria-labelledby="summary-title">
+    <div class="summary-card glass-panel">
+      <div class="summary-celebration-icon">🏆</div>
+      <h2 id="summary-title">Workout Complete!</h2>
+      <p class="summary-subtitle">You pushed hard and loaded your progression vault.</p>
       
-      <textarea class="firebase-config-textarea" id="firebase-config-textarea" aria-label="Paste Firebase Configuration JSON"></textarea>
-      
-      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px;">
-        <button class="nav-btn" id="btn-clear-config" style="color: hsl(0, 100%, 65%); border-color: rgba(255, 0, 0, 0.15);" aria-label="Clear configuration keys">
-          Clear Key
-        </button>
-        <button class="nav-btn primary" id="btn-save-config" aria-label="Save config and connect database">
-          Save & Connect
-        </button>
+      <div class="summary-metrics-grid">
+        <div class="summary-metric-card">
+          <span>⏱ Time</span>
+          <strong id="summary-time-val">00:00</strong>
+        </div>
+        <div class="summary-metric-card">
+          <span>🏋️ Volume</span>
+          <strong id="summary-volume-val">0 kg</strong>
+        </div>
+        <div class="summary-metric-card">
+          <span>📊 Sets Logged</span>
+          <strong id="summary-sets-val">0</strong>
+        </div>
       </div>
+      
+      <div class="summary-streak-card">
+        <span class="streak-fire">🔥</span>
+        <div>
+          <strong id="summary-streak-val">0 Day Streak!</strong>
+          <p>Keep the momentum going.</p>
+        </div>
+      </div>
+      
+      <button class="session-btn primary" id="btn-close-summary" style="margin-top: 16px; width: 100%;">
+        Done
+      </button>
     </div>
   </div>
 
