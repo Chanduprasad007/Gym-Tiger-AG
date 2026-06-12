@@ -3,12 +3,42 @@
 
 // Firebase imports removed to support 100% offline local-only operation.
 
+// Safe Storage Wrapper to prevent private browsing mode crashes
+const safeStorage = {
+  getItem: (key) => {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.warn("Storage read blocked:", e);
+      return null;
+    }
+  },
+  setItem: (key, value) => {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      console.warn("Storage write blocked:", e);
+      return false;
+    }
+  },
+  removeItem: (key) => {
+    try {
+      localStorage.removeItem(key);
+      return true;
+    } catch (e) {
+      console.warn("Storage remove blocked:", e);
+      return false;
+    }
+  }
+};
+
 // Retrieve saved Firebase Web Configuration from localStorage
 const STORAGE_KEY = "gym-antigravity_firebase_config";
 let savedConfig = null;
 
 try {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  const raw = safeStorage.getItem(STORAGE_KEY);
   if (raw) {
     savedConfig = JSON.parse(raw);
   }
@@ -31,10 +61,21 @@ isRealFirebase = false;
 const mockState = {
   currentUser: { uid: "local-user-gym-antigravity", email: "athlete@gym-antigravity.com", displayName: "Athlete" },
   authListeners: new Set(),
-  workoutsHistory: JSON.parse(localStorage.getItem("gym-antigravity_mock_history") || "[]"),
-  personalRecords: JSON.parse(localStorage.getItem("gym-antigravity_mock_prs") || "{}"),
-  userPreferences: JSON.parse(localStorage.getItem("gym-antigravity_mock_prefs") || '{"activeDay": "A"}')
+  workoutsHistory: [],
+  personalRecords: {},
+  userPreferences: { activeDay: "A" }
 };
+
+// Initialize mockState safely
+try {
+  mockState.workoutsHistory = JSON.parse(safeStorage.getItem("gym-antigravity_mock_history") || "[]");
+} catch (e) {}
+try {
+  mockState.personalRecords = JSON.parse(safeStorage.getItem("gym-antigravity_mock_prs") || "{}");
+} catch (e) {}
+try {
+  mockState.userPreferences = JSON.parse(safeStorage.getItem("gym-antigravity_mock_prefs") || '{"activeDay": "A"}');
+} catch (e) {}
 
 const mockAuth = {
   signInWithEmailAndPassword: async (email, password) => {
@@ -84,7 +125,7 @@ const dbOperations = {
       await setDoc(doc(firebaseDb, "users", uid), data, { merge: true });
     } else {
       mockState.userPreferences = { ...mockState.userPreferences, ...data };
-      localStorage.setItem("gym-antigravity_mock_prefs", JSON.stringify(mockState.userPreferences));
+      safeStorage.setItem("gym-antigravity_mock_prefs", JSON.stringify(mockState.userPreferences));
     }
   },
 
@@ -104,7 +145,7 @@ const dbOperations = {
     const localCacheKey = `gym-antigravity_history_cache_${uid}`;
     let cachedHistory = [];
     try {
-      cachedHistory = JSON.parse(localStorage.getItem(localCacheKey) || "[]");
+      cachedHistory = JSON.parse(safeStorage.getItem(localCacheKey) || "[]");
     } catch (e) {}
     
     // Check if duplicate
@@ -112,7 +153,7 @@ const dbOperations = {
     const sessionWithId = { id: `session-${timestampId}`, ...workoutSession };
     
     cachedHistory.unshift(sessionWithId);
-    localStorage.setItem(localCacheKey, JSON.stringify(cachedHistory));
+    safeStorage.setItem(localCacheKey, JSON.stringify(cachedHistory));
 
     if (isRealFirebase) {
       try {
@@ -124,14 +165,14 @@ const dbOperations = {
         // Add to offline sync queue
         let queue = [];
         try {
-          queue = JSON.parse(localStorage.getItem(`gym-antigravity_sync_queue_${uid}`) || "[]");
+          queue = JSON.parse(safeStorage.getItem(`gym-antigravity_sync_queue_${uid}`) || "[]");
         } catch (e) {}
         queue.push(workoutSession);
-        localStorage.setItem(`gym-antigravity_sync_queue_${uid}`, JSON.stringify(queue));
+        safeStorage.setItem(`gym-antigravity_sync_queue_${uid}`, JSON.stringify(queue));
       }
     } else {
       mockState.workoutsHistory.unshift(sessionWithId);
-      localStorage.setItem("gym-antigravity_mock_history", JSON.stringify(mockState.workoutsHistory));
+      safeStorage.setItem("gym-antigravity_mock_history", JSON.stringify(mockState.workoutsHistory));
     }
   },
 
@@ -141,7 +182,7 @@ const dbOperations = {
     const localCacheKey = `gym-antigravity_history_cache_${uid}`;
     let cachedHistory = [];
     try {
-      cachedHistory = JSON.parse(localStorage.getItem(localCacheKey) || "[]");
+      cachedHistory = JSON.parse(safeStorage.getItem(localCacheKey) || "[]");
     } catch (e) {}
     
     if (isRealFirebase) {
@@ -155,7 +196,7 @@ const dbOperations = {
         });
         
         // Update local cache with fresh data from Firestore
-        localStorage.setItem(localCacheKey, JSON.stringify(list));
+        safeStorage.setItem(localCacheKey, JSON.stringify(list));
         return list;
       } catch (error) {
         console.warn("Gym - Antigravity: Failed to fetch from Firestore, serving cached history", error);
@@ -166,7 +207,7 @@ const dbOperations = {
     }
   },
 
-  // Save personal record
+  // Save personal personal record
   savePersonalRecord: async (uid, exerciseName, prData) => {
     if (isRealFirebase) {
       const ref = doc(firebaseDb, "users", uid, "personal_records", exerciseName.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
@@ -174,7 +215,7 @@ const dbOperations = {
     } else {
       const key = exerciseName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       mockState.personalRecords[key] = prData;
-      localStorage.setItem("gym-antigravity_mock_prs", JSON.stringify(mockState.personalRecords));
+      safeStorage.setItem("gym-antigravity_mock_prs", JSON.stringify(mockState.personalRecords));
     }
   },
 
@@ -195,31 +236,31 @@ const dbOperations = {
 };
 
 // Functions to manage Firebase configuration directly from UI
-export function saveFirebaseConfig(config) {
+function saveFirebaseConfig(config) {
   if (!config || !config.apiKey || !config.projectId) {
     throw new Error("Invalid configuration object. Must contain apiKey and projectId.");
   }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  safeStorage.setItem(STORAGE_KEY, JSON.stringify(config));
 }
 
-export function clearFirebaseConfig() {
-  localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem("gym-antigravity_mock_history");
-  localStorage.removeItem("gym-antigravity_mock_prs");
-  localStorage.removeItem("gym-antigravity_mock_prefs");
+function clearFirebaseConfig() {
+  safeStorage.removeItem(STORAGE_KEY);
+  safeStorage.removeItem("gym-antigravity_mock_history");
+  safeStorage.removeItem("gym-antigravity_mock_prs");
+  safeStorage.removeItem("gym-antigravity_mock_prefs");
 }
 
-export function getSavedFirebaseConfig() {
+function getSavedFirebaseConfig() {
   return savedConfig;
 }
 
 // Synchronize offline queued workouts to Firestore when online
-export async function syncOfflineQueue(uid) {
+async function syncOfflineQueue(uid) {
   if (!isRealFirebase || !navigator.onLine) return;
   const queueKey = `gym-antigravity_sync_queue_${uid}`;
   let queue = [];
   try {
-    queue = JSON.parse(localStorage.getItem(queueKey) || "[]");
+    queue = JSON.parse(safeStorage.getItem(queueKey) || "[]");
   } catch (e) {}
   
   if (queue.length === 0) return;
@@ -237,24 +278,29 @@ export async function syncOfflineQueue(uid) {
   }
   
   if (failedToSync.length === 0) {
-    localStorage.removeItem(queueKey);
+    safeStorage.removeItem(queueKey);
     console.log("Gym - Antigravity: All offline workouts synchronized successfully.");
   } else {
-    localStorage.setItem(queueKey, JSON.stringify(failedToSync));
+    safeStorage.setItem(queueKey, JSON.stringify(failedToSync));
   }
 }
 
-// Exports unified API
-export const auth = isRealFirebase ? firebaseAuth : mockAuth;
-export const isMockMode = !isRealFirebase;
-export const db = dbOperations;
-export const realAuthMethods = {
+// Exports unified API to window global scope
+window.auth = isRealFirebase ? firebaseAuth : mockAuth;
+window.isMockMode = !isRealFirebase;
+window.db = dbOperations;
+window.realAuthMethods = {
   signInWithEmailAndPassword: async () => { throw new Error("Firebase disabled"); },
   createUserWithEmailAndPassword: async () => { throw new Error("Firebase disabled"); },
   signOut: async () => {},
   onAuthStateChanged: (callback) => { callback(mockState.currentUser); return () => {}; }
 };
-export const realFirestoreMethods = {
+window.realFirestoreMethods = {
   doc: () => {}, setDoc: () => {}, getDoc: () => {}, collection: () => {}, addDoc: () => {}, query: () => {}, orderBy: () => {}, getDocs: () => {}
 };
-export { firebaseDb, firebaseAuth };
+window.firebaseDb = firebaseDb;
+window.firebaseAuth = firebaseAuth;
+window.saveFirebaseConfig = saveFirebaseConfig;
+window.clearFirebaseConfig = clearFirebaseConfig;
+window.getSavedFirebaseConfig = getSavedFirebaseConfig;
+window.syncOfflineQueue = syncOfflineQueue;
