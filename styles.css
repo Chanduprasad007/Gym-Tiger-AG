@@ -46,6 +46,75 @@
   --shadow-inset: inset 0 2px 4px 0 rgba(255, 255, 255, 0.05);
 }
 
+/* ==========================================
+   LIGHT THEME VARIABLES & OVERRIDES
+   ========================================== */
+body.light-theme {
+  /* Dynamic Liquid UI Color System - Light Mode */
+  --bg-main: #f4f5f8;
+  --bg-card: rgba(255, 255, 255, 0.75);
+  --bg-panel: rgba(255, 255, 255, 0.85);
+  --bg-glass: rgba(235, 238, 245, 0.65);
+  --bg-glass-heavy: rgba(243, 245, 250, 0.93);
+  --text-main: #101014;
+  --text-muted: #585866;
+  --text-dim: #8a8a99;
+  
+  /* Primary Liquid Accents */
+  --gym-antigravity-orange: hsl(22, 100%, 48%);
+  --gym-antigravity-orange-hover: hsl(22, 100%, 52%);
+  --gym-antigravity-orange-dim: rgba(255, 107, 0, 0.06);
+  --gym-antigravity-glow: 0 8px 25px rgba(255, 107, 0, 0.15);
+  --gym-antigravity-glow-intense: 0 10px 35px rgba(255, 107, 0, 0.25);
+  
+  /* Day/Category Specific Theme Accents */
+  --color-orange: hsl(22, 100%, 48%);
+  --color-cyan: hsl(185, 95%, 38%);
+  --color-violet: hsl(270, 80%, 52%);
+  --color-lime: hsl(100, 80%, 35%);
+  --color-pink: hsl(328, 90%, 48%);
+  
+  /* Structural Tokens */
+  --border-glass: rgba(0, 0, 0, 0.08);
+  --border-glass-bright: rgba(0, 0, 0, 0.12);
+  --border-glass-gray: rgba(0, 0, 0, 0.04);
+  
+  --shadow-main: 0 12px 30px 0 rgba(0, 0, 0, 0.06);
+  --shadow-inset: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+}
+
+body.light-theme .liquid-bg-blob {
+  opacity: 0.12;
+  filter: blur(140px);
+}
+
+body.light-theme .set-input {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: var(--text-main);
+}
+
+body.light-theme .set-input:focus {
+  border-color: var(--gym-antigravity-orange);
+  background: #fff;
+}
+
+body.light-theme .set-checkbox {
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+body.light-theme .set-checkbox:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+body.light-theme .wizard-progress-bar {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme .bar-track {
+  background: rgba(0, 0, 0, 0.06);
+}
+
 /* Reset and Base Rules */
 * {
   margin: 0;
@@ -229,18 +298,18 @@ h1, h2, h3, h4, h5 {
   opacity: 0.9;
 }
 
-.brand-icon {
+.brand-logo-img {
   width: 38px;
   height: 38px;
-  background: var(--gym-antigravity-gradient);
   border-radius: var(--border-radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #000;
-  font-size: 20px;
-  font-weight: 900;
-  box-shadow: var(--gym-antigravity-glow);
+  object-fit: cover;
+  box-shadow: 0 0 15px rgba(0, 229, 229, 0.25);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  transition: transform var(--transition-fast);
+}
+
+.nav-brand:hover .brand-logo-img {
+  transform: rotate(5deg) scale(1.05);
 }
 
 .nav-actions {
@@ -347,6 +416,40 @@ h1, h2, h3, h4, h5 {
   font-size: 46px;
   margin-bottom: 16px;
   line-height: 1.1;
+}
+
+/* Hero motivational quote */
+.hero-quote-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 12px;
+  margin-bottom: 24px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 12px 18px;
+  border-radius: var(--border-radius-sm);
+  border-left: 3px solid var(--gym-antigravity-orange);
+  max-width: 580px;
+  box-shadow: var(--shadow-inset);
+}
+
+.quote-symbol {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 1;
+  color: var(--gym-antigravity-orange);
+  font-weight: 800;
+  margin-top: -6px;
+}
+
+.hero-quote {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 0;
 }
 
 /* Activity Wave Chart Card styling */

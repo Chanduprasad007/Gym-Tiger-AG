@@ -62,7 +62,8 @@ const elements = {
   totalWorkoutsStat: document.getElementById("total-workouts-stat"),
   totalVolumeStat: document.getElementById("total-volume-stat"),
   completionRateStat: document.getElementById("completion-rate-stat"),
-  btnInstallApp: document.getElementById("pwa-install-btn")
+  btnInstallApp: document.getElementById("pwa-install-btn"),
+  btnThemeToggle: document.getElementById("theme-toggle-btn")
 };
 
 // Global App State
@@ -91,6 +92,16 @@ const WORKOUTX_GIFS = {
 // ==========================================
 
 function initializeGymApp() {
+  // Load saved theme settings
+  const savedTheme = localStorage.getItem("gym-antigravity_theme");
+  if (savedTheme === "light") {
+    document.body.classList.add("light-theme");
+    const toggleBtn = document.getElementById("theme-toggle-btn");
+    if (toggleBtn) {
+      toggleBtn.textContent = "🌙";
+    }
+  }
+
   // Initialize default offline user instantly for frictionless load
   currentUser = { uid: "local-user-gym-antigravity", email: "athlete@gym-antigravity.com", displayName: "Athlete" };
   onUserAuthenticated(currentUser);
@@ -168,6 +179,9 @@ function setupBaseEventListeners() {
   elements.btnSkipTimer?.addEventListener("click", skipRestTimer);
   elements.btnPauseTimer?.addEventListener("click", togglePauseRestTimer);
   elements.btnAddTimer?.addEventListener("click", add30sRestTimer);
+
+  // Theme Toggle Control
+  elements.btnThemeToggle?.addEventListener("click", toggleAppTheme);
 
   // Filter Bar listeners
   document.querySelectorAll(".filter-btn").forEach(btn => {
@@ -1552,5 +1566,13 @@ window.addEventListener('appinstalled', (evt) => {
     installBtn.style.display = "none";
   }
 });
+
+function toggleAppTheme() {
+  const isLight = document.body.classList.toggle("light-theme");
+  localStorage.setItem("gym-antigravity_theme", isLight ? "light" : "dark");
+  if (elements.btnThemeToggle) {
+    elements.btnThemeToggle.textContent = isLight ? "🌙" : "☀️";
+  }
+}
 
 })();
