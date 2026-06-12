@@ -1,6 +1,3 @@
-// Gym - Antigravity Authentication Controller Module
-import { auth, db, isMockMode } from "./firebase-config.js";
-
 // DOM Elements cache for Auth overlay
 let authContainer = null;
 let authPanel = null;
@@ -16,7 +13,7 @@ let isSignUpMode = false;
 let authSuccessCallback = null;
 
 // Initialize elements once DOM is loaded
-export function initAuthUI(elementsMap, onAuthSuccess) {
+function initAuthUI(elementsMap, onAuthSuccess) {
   authContainer = elementsMap.authContainer;
   authPanel = elementsMap.authPanel;
   authHeaderTitle = elementsMap.authHeaderTitle;
@@ -38,22 +35,22 @@ export function initAuthUI(elementsMap, onAuthSuccess) {
   }
 
   // Subscribe to Authentication state change
-  auth.onAuthStateChanged((user) => {
+  window.auth.onAuthStateChanged((user) => {
     updateAuthUI(user);
-    if (user && authSuccessCallback) {
-      authSuccessCallback(user);
+    if (authSuccessCallback) {
+      authSuccessCallback(user || { uid: "local-user-gym-antigravity", email: "athlete@gym-antigravity.com", displayName: "Athlete" });
     }
   });
 }
 
-export function showAuthPanel() {
+function showAuthPanel() {
   if (authContainer) {
     authContainer.classList.add("active");
     authEmailInput?.focus();
   }
 }
 
-export function hideAuthPanel() {
+function hideAuthPanel() {
   if (authContainer) {
     authContainer.classList.remove("active");
   }
@@ -75,7 +72,7 @@ function setLoadingState(isLoading) {
   // No-op
 }
 
-export async function handleSignOut() {
+async function handleSignOut() {
   // No-op
 }
 
@@ -85,7 +82,7 @@ function updateAuthUI(user) {
 }
 
 // Toast notification helper
-export function showToast(message) {
+function showToast(message) {
   let toast = document.getElementById("gym-antigravity-toast");
   if (!toast) {
     toast = document.createElement("div");
@@ -105,3 +102,9 @@ export function showToast(message) {
     toast.classList.remove("active");
   }, 3500);
 }
+
+window.initAuthUI = initAuthUI;
+window.showAuthPanel = showAuthPanel;
+window.hideAuthPanel = hideAuthPanel;
+window.handleSignOut = handleSignOut;
+window.showToast = showToast;

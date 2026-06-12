@@ -1,7 +1,12 @@
-// Gym - Antigravity - Core Application Engine
-import { program, coachingRules, focusTags } from "./workout-data.js";
-import { db, auth, isMockMode, saveFirebaseConfig, clearFirebaseConfig, getSavedFirebaseConfig, syncOfflineQueue } from "./firebase-config.js";
-import { initAuthUI, showAuthPanel, showToast } from "./auth.js";
+(function() {
+// Gym - Antigravity - Core Application Engine (Pure Local Offline compatibility mode)
+
+// Extract variables from the global window context loaded from scripts
+const { 
+  program, coachingRules, focusTags, 
+  db, auth, isMockMode, saveFirebaseConfig, clearFirebaseConfig, getSavedFirebaseConfig, syncOfflineQueue,
+  initAuthUI, showAuthPanel, showToast 
+} = window;
 
 // Cache Core DOM Elements
 const elements = {
@@ -56,7 +61,8 @@ const elements = {
   historyList: document.getElementById("history-list"),
   totalWorkoutsStat: document.getElementById("total-workouts-stat"),
   totalVolumeStat: document.getElementById("total-volume-stat"),
-  completionRateStat: document.getElementById("completion-rate-stat")
+  completionRateStat: document.getElementById("completion-rate-stat"),
+  btnInstallApp: document.getElementById("pwa-install-btn")
 };
 
 // Global App State
@@ -84,7 +90,11 @@ const WORKOUTX_GIFS = {
 // INITIALIZATION
 // ==========================================
 
-document.addEventListener("DOMContentLoaded", () => {
+function initializeGymApp() {
+  // Initialize default offline user instantly for frictionless load
+  currentUser = { uid: "local-user-gym-antigravity", email: "athlete@gym-antigravity.com", displayName: "Athlete" };
+  onUserAuthenticated(currentUser);
+
   // Initialize Auth Controller UI
   initAuthUI({
     authContainer: document.getElementById("auth-container"),
@@ -109,7 +119,31 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast("Connection restored! Syncing offline workouts...");
     }
   });
-});
+
+  // Setup click handler for PWA install button
+  const installBtn = document.getElementById("pwa-install-btn");
+  if (installBtn) {
+    installBtn.addEventListener("click", async () => {
+      if (deferredPrompt) {
+        // Show the prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        // We've used the prompt, and can't use it again
+        deferredPrompt = null;
+        // Hide the install button
+        installBtn.style.display = "none";
+      }
+    });
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeGymApp);
+} else {
+  initializeGymApp();
+}
 
 function setupBaseEventListeners() {
   // Settings Panel trigger
@@ -141,7 +175,22 @@ function setupBaseEventListeners() {
       document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       currentFilter = btn.dataset.filter;
+
+      // Auto-select first visible card if the current active day is filtered out under the new filter
+      const favs = getFavorites();
+      const visibleDays = program.filter(day => {
+        const meta = getWorkoutMetadata(day.letter);
+        const isFav = favs.includes(day.letter);
+        if (currentFilter === "all") return true;
+        if (currentFilter === "favs") return isFav;
+        return meta.category === currentFilter;
+      });
+      if (visibleDays.length > 0 && !visibleDays.some(d => d.letter === currentActiveDayLetter)) {
+        currentActiveDayLetter = visibleDays[0].letter;
+      }
+
       renderWorkoutCards();
+      renderActiveDayDetails();
     });
   });
   
@@ -460,9 +509,7 @@ function renderActiveDayDetails() {
 
 function startWorkoutSession() {
   if (!currentUser) {
-    showToast("Please log in or register to log workout sessions.");
-    showAuthPanel();
-    return;
+    currentUser = { uid: "local-user-gym-antigravity", email: "athlete@gym-antigravity.com", displayName: "Athlete" };
   }
 
   const day = program.find(d => d.letter === currentActiveDayLetter) || program[0];
@@ -611,7 +658,6 @@ function renderActiveExerciseSession() {
   }
   
   updateWizardProgress();
-}
 }
 
 function loadExerciseGif(ex) {
@@ -1468,14 +1514,43 @@ function clearCustomFirebase() {
 // ==========================================
 // PWA SERVICE WORKER REGISTRATION
 // ==========================================
+let deferredPrompt = null;
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./service-worker.js')
       .then(registration => {
         console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        // Force update check
+        registration.update();
       })
       .catch(err => {
         console.log('ServiceWorker registration failed: ', err);
       });
   });
 }
+
+// Custom PWA installation prompt event listener
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Prevent Chrome 67 and earlier from automatically showing the prompt
+  e.preventDefault();
+  // Stash the event so it can be triggered later.
+  deferredPrompt = e;
+  // Show the install button in navigation header
+  const installBtn = document.getElementById("pwa-install-btn");
+  if (installBtn) {
+    installBtn.style.display = "inline-flex";
+  }
+});
+
+// PWA install handler registered inside initializeGymApp
+
+window.addEventListener('appinstalled', (evt) => {
+  console.log('Gym - Antigravity app was successfully installed!');
+  const installBtn = document.getElementById("pwa-install-btn");
+  if (installBtn) {
+    installBtn.style.display = "none";
+  }
+});
+
+})();

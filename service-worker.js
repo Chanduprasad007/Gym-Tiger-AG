@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gym-antigravity-v1';
+const CACHE_NAME = 'gym-antigravity-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -7,7 +7,13 @@ const ASSETS_TO_CACHE = [
   './workout-data.js',
   './auth.js',
   './firebase-config.js',
-  './app.webmanifest'
+  './app.webmanifest',
+  './assets/icon-192.png',
+  './assets/icon-512.png',
+  './assets/bench_press.png',
+  './assets/deadlift.png',
+  './assets/lat_pulldown.png',
+  './assets/squat.png'
 ];
 
 self.addEventListener('install', (event) => {

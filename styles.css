@@ -2024,6 +2024,15 @@ h1, h2, h3, h4, h5 {
   text-shadow: 0 0 8px rgba(0, 229, 229, 0.2);
 }
 
+#pwa-install-btn {
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+}
+
+#pwa-install-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.15);
+}
+
 /* Category Filter Bar */
 .filter-bar {
   display: flex;

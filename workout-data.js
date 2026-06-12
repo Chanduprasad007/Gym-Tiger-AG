@@ -336,4 +336,6 @@ function ex(name, sets, reps, rest, tag, cue, alternatives) {
   return { name, sets, reps, rest, tag, cue, alternatives };
 }
 
-export { coachingRules, focusTags, program };
+window.coachingRules = coachingRules;
+window.focusTags = focusTags;
+window.program = program;
