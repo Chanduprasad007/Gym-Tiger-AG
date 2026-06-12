@@ -77,6 +77,33 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
+  
+  /* Mobile Web App friendly behaviors */
+  overscroll-behavior-y: contain; /* Prevents browser bounce/pull-to-refresh */
+  -webkit-tap-highlight-color: transparent; /* Prevents tap flash block */
+  -webkit-user-select: none; /* Prevents text selection popups on touch holds */
+  user-select: none;
+  -webkit-touch-callout: none; /* Disables system callouts on links */
+}
+
+/* Allow normal text selection in input boxes and advisor instructions */
+input, textarea, [contenteditable="true"], .advisor-suggestion, .history-summary-specs, .active-exercise-cue {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Interactive elements active click scale animations */
+.filter-btn:active, .workout-card-btn:active, .session-btn:active, .set-checkbox:active, .timer-btn:active {
+  transform: scale(0.96) !important;
+  filter: brightness(0.9);
+}
+
+.workout-card {
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast) !important;
+}
+
+.workout-card:active {
+  transform: scale(0.98) !important;
 }
 
 /* Animated Liquid Aurora Background Blobs */
@@ -180,7 +207,7 @@ h1, h2, h3, h4, h5 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 0;
+  padding: calc(env(safe-area-inset-top, 0px) + 24px) 0 24px 0;
   border-bottom: 1px solid var(--border-glass-gray);
   margin-bottom: 32px;
 }
@@ -1107,7 +1134,7 @@ h1, h2, h3, h4, h5 {
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  padding: 32px;
+  padding: calc(env(safe-area-inset-top, 0px) + 20px) calc(env(safe-area-inset-right, 0px) + 20px) calc(env(safe-area-inset-bottom, 0px) + 20px) calc(env(safe-area-inset-left, 0px) + 20px);
   overflow-y: auto;
   opacity: 0;
   pointer-events: none;

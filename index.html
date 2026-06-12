@@ -2,30 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <script>
-    // Self-healing service worker cache-breaker to resolve stale caching deadlocks
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for (let registration of registrations) {
-          registration.unregister().then(function() {
-            console.log('Stale service worker unregistered.');
-          });
-        }
-      });
-    }
-    if (window.caches) {
-      caches.keys().then(function(names) {
-        for (let name of names) {
-          caches.delete(name).then(function() {
-            console.log('Cache storage cleared:', name);
-          });
-        }
-      });
-    }
-  </script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <meta name="description" content="Gym - Antigravity - Premium 6-day strength and hypertrophy training split with interactive logging, dynamic rest timers, smart progressive overload tracking, and Firestore backend sync.">
   <meta name="theme-color" content="#050507">
+  
+  <!-- Apple standalone mobile app configuration -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Gym - Antigravity">
+  <link rel="apple-touch-icon" href="./assets/icon-192.png">
   
   <title>Gym - Antigravity | Interactive Fitness Split & Tracker</title>
   
