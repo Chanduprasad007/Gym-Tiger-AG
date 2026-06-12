@@ -1,3 +1,6 @@
+// Gym - Antigravity Authentication Controller Module
+import { auth, db, isMockMode } from "./firebase-config.js";
+
 // DOM Elements cache for Auth overlay
 let authContainer = null;
 let authPanel = null;
@@ -13,7 +16,7 @@ let isSignUpMode = false;
 let authSuccessCallback = null;
 
 // Initialize elements once DOM is loaded
-function initAuthUI(elementsMap, onAuthSuccess) {
+export function initAuthUI(elementsMap, onAuthSuccess) {
   authContainer = elementsMap.authContainer;
   authPanel = elementsMap.authPanel;
   authHeaderTitle = elementsMap.authHeaderTitle;
@@ -35,22 +38,22 @@ function initAuthUI(elementsMap, onAuthSuccess) {
   }
 
   // Subscribe to Authentication state change
-  window.auth.onAuthStateChanged((user) => {
+  auth.onAuthStateChanged((user) => {
     updateAuthUI(user);
-    if (authSuccessCallback) {
-      authSuccessCallback(user || { uid: "local-user-gym-antigravity", email: "athlete@gym-antigravity.com", displayName: "Athlete" });
+    if (user && authSuccessCallback) {
+      authSuccessCallback(user);
     }
   });
 }
 
-function showAuthPanel() {
+export function showAuthPanel() {
   if (authContainer) {
     authContainer.classList.add("active");
     authEmailInput?.focus();
   }
 }
 
-function hideAuthPanel() {
+export function hideAuthPanel() {
   if (authContainer) {
     authContainer.classList.remove("active");
   }
@@ -72,7 +75,7 @@ function setLoadingState(isLoading) {
   // No-op
 }
 
-async function handleSignOut() {
+export async function handleSignOut() {
   // No-op
 }
 
@@ -82,7 +85,7 @@ function updateAuthUI(user) {
 }
 
 // Toast notification helper
-function showToast(message) {
+export function showToast(message) {
   let toast = document.getElementById("gym-antigravity-toast");
   if (!toast) {
     toast = document.createElement("div");
@@ -102,9 +105,3 @@ function showToast(message) {
     toast.classList.remove("active");
   }, 3500);
 }
-
-window.initAuthUI = initAuthUI;
-window.showAuthPanel = showAuthPanel;
-window.hideAuthPanel = hideAuthPanel;
-window.handleSignOut = handleSignOut;
-window.showToast = showToast;

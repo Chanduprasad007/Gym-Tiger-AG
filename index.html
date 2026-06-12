@@ -2,27 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <script>
-    // Self-healing service worker cache-breaker to resolve stale caching deadlocks
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for (let registration of registrations) {
-          registration.unregister().then(function() {
-            console.log('Stale service worker unregistered.');
-          });
-        }
-      });
-    }
-    if (window.caches) {
-      caches.keys().then(function(names) {
-        for (let name of names) {
-          caches.delete(name).then(function() {
-            console.log('Cache storage cleared:', name);
-          });
-        }
-      });
-    }
-  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Gym - Antigravity - Premium 6-day strength and hypertrophy training split with interactive logging, dynamic rest timers, smart progressive overload tracking, and Firestore backend sync.">
   <meta name="theme-color" content="#050507">
@@ -423,11 +402,8 @@
     </div>
   </div>
 
-  <!-- Primary Application Scripts in global scope order to support file:// protocol offline loading -->
-  <script src="./workout-data.js"></script>
-  <script src="./firebase-config.js"></script>
-  <script src="./auth.js"></script>
-  <script src="./app.js"></script>
+  <!-- Primary Application Script Module -->
+  <script type="module" src="./app.js"></script>
 
 </body>
 </html>
